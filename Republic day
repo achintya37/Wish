@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Republic Day 2026 | Ultimate Cinematic Smoke</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --saffron: #FF9933;
+            --white: #FFFFFF;
+            --green: #138808;
+            --navy: #000080;
+            --jet-color: #222;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            height: 100vh;
+            /* মোবাইলের জন্য গভীরতা */
+            perspective: 800px;
+            background: linear-gradient(180deg,
+                var(--saffron) 0%, var(--saffron) 35%,
+                #ffffff 35%, #ffffff 65%,
+                var(--green) 65%, var(--green) 100%
+            );
+            background-attachment: fixed;
+            touch-action: pan-y;
+        }
+
+        /* --- AUTHOR CREDIT --- */
+        .author-credit {
+            position: fixed; top: 15px; width: 100%; text-align: center;
+            font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--navy);
+            opacity: 0.8; z-index: 1000; letter-spacing: 3px; font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,255,255,0.8);
+        }
+
+        /* --- NEW REALISTIC SMOKE EFFECT --- */
+        .smoke-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: 5; pointer-events: none;
+            /* ধোঁয়াকে নরম করার জন্য ব্লার ফিল্টার */
+            filter: blur(15px);
+        }
+        
+        /* ধোঁয়ার মেঘের স্তর */
+        .smoke-layer {
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            opacity: 0.5;
+            /* একাধিক গোলাকার গ্রেডিয়েন্ট দিয়ে মেঘের আকৃতি তৈরি */
+            background-image: 
+                radial-gradient(circle at 30% 40%, rgba(255,255,255,0.6) 0%, transparent 40%),
+                radial-gradient(circle at 70% 60%, rgba(255,255,255,0.5) 0%, transparent 30%),
+                radial-gradient(circle at 50% 20%, rgba(255,255,255,0.4) 0%, transparent 50%);
+            background-repeat: no-repeat;
+            /* ধীরে ধীরে ওপরে ওঠা এবং ঘোরার অ্যানিমেশন */
+            animation: smokeRise 30s linear infinite alternate;
+        }
+        
+        .smoke-layer:nth-child(2) {
+            opacity: 0.3;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.5) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.4) 0%, transparent 30%);
+            /* ভিন্ন গতি এবং দিক */
+            animation: smokeRise 45s linear infinite alternate-reverse;
+        }
+
+        @keyframes smokeRise {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(50px, -100px) rotate(10deg); }
+        }
+
+
+        /* --- ফিক্সড সেন্ট্রাল অশোক চক্র --- */
+        .fixed-chakra-overlay {
+            position: fixed; top: 50%; left: 50%;
+            /* এখানে perspective যোগ করা হলো যাতে 3D টিল্ট বোঝা যায় */
+            transform: translate(-50%, -50%) perspective(1000px);
+            z-index: 1; pointer-events: none; opacity: 0.2;
+            filter: drop-shadow(0 0 10px var(--navy));
+        }
+        .chakra-container-fixed {
+            width: 80vw; height: 80vw;
+            max-width: 400px; max-height: 400px;
+            transform-style: preserve-3d;
+            /* ডিফল্ট 3D টিল্ট (JS এটি আপডেট করবে) */
+            transform: rotateX(30deg); 
+            /* ঘোরা এবং বড় হওয়ার জন্য ট্রানজিশন */
+            transition: transform 0.1s ease-out;
+        }
+        .chakra {
+            width: 100%; height: 100%; border-radius: 50%; position: relative;
+            border: 4px solid var(--navy);
+            /* চক্রটি নিজের অক্ষেই ঘুরতে থাকবে */
+            animation: spinSlow 20s linear infinite;
+        }
+        .chakra::before {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            width: 15%; height: 15%; background: var(--navy);
+            border-radius: 50%; transform: translate(-50%, -50%);
+        }
+        .spoke {
+            position: absolute; top: 0; left: 50%; width: 2px; height: 100%;
+            background: var(--navy); margin-left: -1px;
+        }
+        @keyframes spinSlow { to { transform: rotateZ(360deg); } }
+
+
+        /* --- 3D FIGHTER JETS --- */
+        .jet-container { position: fixed; z-index: 15; transform-style: preserve-3d; pointer-events: none; }
+        .jet-body {
+            position: relative; width: 0; height: 0;
+            border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-bottom: 60px solid var(--jet-color);
+            transform: rotateX(80deg) rotateZ(90deg);
+            filter: drop-shadow(-5px 5px 5px rgba(0,0,0,0.4));
+        }
+        .smoke-trail {
+            position: absolute; top: 50%; right: 5px; width: 150px; height: 20px;
+            transform: translateY(-50%) rotateY(90deg); transform-origin: right center;
+            filter: blur(8px); opacity: 0.8; border-radius: 50px;
+        }
+        .smoke-saffron { background: linear-gradient(to left, var(--saffron), transparent); }
+        .smoke-white { background: linear-gradient(to left, #ddd, transparent); }
+        .smoke-green { background: linear-gradient(to left, var(--green), transparent); }
+        @keyframes flyMobile {
+            0% { left: -150px; transform: translateY(0) scale(0.6); }
+            100% { left: 120vw; transform: translateY(-50px) scale(0.8); }
+        }
+
+
+        /* --- MAIN SCROLL STAGE --- */
+        #stage {
+            height: 100vh; overflow-y: scroll; scroll-behavior: smooth;
+            scroll-snap-type: y mandatory; position: relative; z-index: 10;
+        }
+        .scene {
+            height: 100vh; width: 100%; scroll-snap-align: start;
+            position: relative; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            overflow: hidden; transform-style: preserve-3d; padding: 20px;
+        }
+
+        /* --- SCENE 1: INTRO --- */
+        .intro-box {
+            text-align: center; backdrop-filter: blur(2px);
+            padding: 20px; border-radius: 20px; transform: translateZ(20px);
+            /* ধোঁয়ার নিচে যাতে লেখা ঢাকা না পড়ে তার জন্য z-index */
+            position: relative; z-index: 20;
+        }
+        .cinematic-sub { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--navy); letter-spacing: 2px; margin-bottom: 10px; }
+        .gradient-title {
+            font-family: 'Cinzel', serif; font-weight: 700;
+            font-size: clamp(3rem, 12vw, 6rem); line-height: 1.1; text-transform: uppercase;
+            background: linear-gradient(135deg, var(--navy) 0%, #ff0055 25%, var(--saffron) 50%, var(--green) 75%, var(--navy) 100%);
+            background-size: 300% auto; -webkit-background-clip: text; background-clip: text; color: transparent;
+            animation: gradientAnim 4s linear infinite, floatText 3s ease-in-out infinite;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+        }
+        .gradient-title span {
+            font-size: clamp(2rem, 8vw, 4rem); display: block; margin-top: 5px;
+            background: linear-gradient(to right, var(--saffron), var(--green));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        @keyframes gradientAnim { to { background-position: 300% center; } }
+        @keyframes floatText { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+
+        /* --- SCENE 2: ROTATING 3D TEXT --- */
+        .scene-text-container { perspective: 600px; z-index: 20; position: relative; }
+        
+        .rotating-wrapper {
+            transform-style: preserve-3d;
+            animation: gentleRock 6s ease-in-out infinite alternate;
+        }
+        
+        @keyframes gentleRock {
+            from { transform: rotateX(15deg) rotateY(-20deg); }
+            to { transform: rotateX(15deg) rotateY(20deg); }
+        }
+
+        .tikarkhanji-text {
+            font-family: 'Montserrat', sans-serif; font-weight: 900;
+            font-size: clamp(2.5rem, 11vw, 5rem); text-align: center; line-height: 1.2; color: #fff;
+            text-shadow: 0 2px 0 #ccc, 0 4px 0 #bbb, 0 6px 5px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.6);
+            background: linear-gradient(to bottom right, #fff, #f0f0f0);
+            -webkit-background-clip: text; background-clip: text; color: rgba(255,255,255,0.9);
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+        .tikarkhanji-text span {
+            display: block; font-size: 0.6em; letter-spacing: 5px; color: var(--navy);
+            background: none; -webkit-text-fill-color: var(--navy); text-shadow: none;
+        }
+        @keyframes textGlow { from { filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); } to { filter: drop-shadow(0 0 15px rgba(255,255,255,0.9)); } }
+
+        /* --- SCENE 3: OUTRO --- */
+        .outro-content { text-align: center; z-index: 20; position: relative; }
+        .pillars { display: flex; justify-content: center; gap: 10px; font-size: 1rem; color: var(--navy); font-weight: 600; margin-bottom: 20px; opacity: 0.8; }
+        .proud-text {
+            font-size: clamp(2rem, 8vw, 3.5rem); font-weight: 800;
+            background: linear-gradient(to right, var(--saffron), var(--navy), var(--green));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .scroll-hint { position: absolute; bottom: 30px; font-size: 0.8rem; color: #666; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} 60% {transform: translateY(-5px);} }
+
+    </style>
+</head>
+<body>
+
+    <div class="author-credit">Designed by Achintya Ghosh</div>
+
+    <div class="smoke-container">
+        <div class="smoke-layer"></div>
+        <div class="smoke-layer"></div>
+    </div>
+
+    <div class="fixed-chakra-overlay">
+        <div class="chakra-container-fixed">
+            <div class="chakra">
+                <div class="spokes-container" id="fixedSpokes"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="jet-airspace"></div>
+
+    <main id="stage">
+        <section class="scene" id="scene-intro">
+            <div class="intro-box">
+                <h2 class="cinematic-sub">26th January</h2>
+                <h1 class="gradient-title">HAPPY<br>REPUBLIC<br>DAY<br><span>2026</span></h1>
+            </div>
+            <div class="scroll-hint">Swipe Up to Explore</div>
+        </section>
+
+        <section class="scene" style="height: 60vh; pointer-events: none;"></section>
+
+        <section class="scene" id="scene-text">
+            <div class="scene-text-container">
+                <div class="rotating-wrapper">
+                    <h1 class="tikarkhanji-text">
+                        TIKARKHANJI<br>
+                        <span>JNYCTSD</span>
+                    </h1>
+                </div>
+            </div>
+        </section>
+
+        <section class="scene" id="scene-outro">
+            <div class="outro-content">
+                <div class="pillars"><span>Unity</span>•<span>Integrity</span>•<span>Sovereignty</span></div>
+                <h3 class="proud-text">Proud to be Indian 🇮🇳</h3>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // ১. অশোক চক্রের স্পোক
+            const spokesContainer = document.getElementById('fixedSpokes');
+            for (let i = 0; i < 24; i++) {
+                const spoke = document.createElement('div');
+                spoke.className = 'spoke';
+                spoke.style.transform = `rotate(${i * 15}deg)`;
+                spokesContainer.appendChild(spoke);
+            }
+
+            // ২. জেট প্লেন সিস্টেম
+            const airspace = document.getElementById('jet-airspace');
+            const smokeColors = ['smoke-saffron', 'smoke-white', 'smoke-green'];
+            let colorIndex = 0;
+
+            function spawnJet() {
+                const jetContainer = document.createElement('div');
+                jetContainer.className = 'jet-container';
+                const smokeClass = smokeColors[colorIndex];
+                colorIndex = (colorIndex + 1) % smokeColors.length;
+                jetContainer.innerHTML = `<div class="jet-body"><div class="smoke-trail ${smokeClass}"></div></div>`;
+                
+                const randomTop = Math.random() * 40 + 20; 
+                const randomDuration = Math.random() * 3 + 5;
+
+                jetContainer.style.top = `${randomTop}vh`;
+                jetContainer.style.animation = `flyMobile ${randomDuration}s linear infinite`;
+                airspace.appendChild(jetContainer);
+
+                setTimeout(() => {
+                    jetContainer.remove();
+                    spawnJet();
+                }, randomDuration * 1000);
+            }
+            spawnJet(); setTimeout(spawnJet, 2000); setTimeout(spawnJet, 4000);
+
+            // ৩. স্ক্রল প্যারালাক্স এফেক্ট (আপডেটেড)
+            const stage = document.getElementById('stage');
+            const chakraFixed = document.querySelector('.chakra-container-fixed');
+
+            stage.addEventListener('scroll', () => {
+                const scrollTop = stage.scrollTop;
+                
+                // চক্রের স্কেল এবং 3D টিল্ট একসাথে কন্ট্রোল করা
+                if(chakraFixed) {
+                    // স্ক্রল করলে ১ গুণ থেকে বেড়ে সর্বোচ্চ ১.৮ গুণ হবে
+                    const scale = 1 + (scrollTop * 0.0008);
+                    const finalScale = Math.min(scale, 1.8);
+                    
+                    // এখানে rotateX(30deg) ফিক্সড রাখা হয়েছে যাতে 3D ভাব থাকে
+                    // এবং তার সাথে scale() যুক্ত করা হয়েছে
+                    chakraFixed.style.transform = `rotateX(30deg) scale(${finalScale})`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
