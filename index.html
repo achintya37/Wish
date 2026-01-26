@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Republic Day 2026 | Ultimate Celebration</title>
+    <title>Republic Day 2026 | Musical Edition</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
 
@@ -13,350 +13,404 @@
             --white: #FFFFFF;
             --green: #138808;
             --navy: #000080;
-            --dark-bg: #0a0a12;
+            --neon-blue: #00eaff;
+            --deep-bg: #030305;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--dark-bg);
+            background-color: var(--deep-bg);
             color: var(--white);
-            overflow: hidden; /* JS দিয়ে স্ক্রল চালু হবে */
-            height: 100vh;
+            overflow: hidden; 
+            height: 100vh; width: 100vw;
+            touch-action: pan-y;
+            overscroll-behavior: none;
         }
 
-        /* --- 1. MODAL (NAME INPUT) --- */
+        /* --- GPU Utility --- */
+        .gpu { transform: translate3d(0,0,0); backface-visibility: hidden; will-change: transform; }
+
+        /* --- MUSIC CONTROL BTN --- */
+        .music-control {
+            position: fixed; top: 20px; right: 20px; z-index: 10001;
+            width: 45px; height: 45px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: none; /* Hidden initially */
+            justify-content: center; align-items: center;
+            cursor: pointer; backdrop-filter: blur(5px);
+            animation: pulseBtn 2s infinite;
+        }
+        .music-control span { font-size: 20px; }
+        @keyframes pulseBtn { 0% {box-shadow: 0 0 0 0 rgba(255,255,255,0.2);} 70% {box-shadow: 0 0 0 10px rgba(255,255,255,0);} 100% {box-shadow: 0 0 0 0 rgba(255,255,255,0);} }
+
+
+        /* --- 1. MODAL STYLES --- */
         #entry-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 10000;
+            background: rgba(0,0,0,0.96); z-index: 9999;
             display: flex; justify-content: center; align-items: center;
-            backdrop-filter: blur(10px);
-            transition: opacity 0.8s ease;
+            transition: opacity 0.6s ease; padding: 20px;
         }
-
         .modal-box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 30px; border-radius: 20px;
-            text-align: center; width: 85%; max-width: 400px;
-            box-shadow: 0 0 40px rgba(0, 0, 128, 0.6);
-            transform: scale(0.9); animation: modalPulse 2s infinite alternate;
+            background: rgba(25, 25, 35, 0.95); border: 2px solid rgba(255, 153, 51, 0.2);
+            padding: 30px 25px; border-radius: 25px; text-align: center; width: 100%; max-width: 380px;
+            box-shadow: 0 0 60px rgba(0,0,0,0.9);
         }
-
-        @keyframes modalPulse { from { transform: scale(0.95); box-shadow: 0 0 20px rgba(255, 153, 51, 0.3); } to { transform: scale(1); box-shadow: 0 0 40px rgba(19, 136, 8, 0.3); } }
-
         .modal-title {
-            font-family: 'Cinzel Decorative', cursive; color: var(--saffron);
-            font-size: 1.8rem; margin-bottom: 20px; letter-spacing: 1px;
-        }
-
-        input[type="text"] {
-            width: 100%; padding: 15px; border-radius: 30px;
-            border: 2px solid rgba(255,255,255,0.3);
-            background: transparent; color: #fff; font-size: 1.2rem;
-            text-align: center; outline: none; margin-bottom: 20px;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Cinzel Decorative', cursive; 
+            background: linear-gradient(to right, var(--saffron), #fff, var(--green));
+            -webkit-background-clip: text; color: transparent;
+            font-size: 1.8rem; margin-bottom: 25px; text-transform: uppercase;
         }
         
-        input[type="text"]:focus { border-color: var(--green); box-shadow: 0 0 15px rgba(19,136,8,0.5); }
+        /* Custom File Upload Styling */
+        .file-upload-wrapper { margin-bottom: 20px; }
+        input[type="file"] { display: none; }
+        .custom-file-label {
+            display: flex; align-items: center; justify-content: center;
+            padding: 15px; border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px; color: #aaa; cursor: pointer; font-weight: 600;
+            transition: 0.3s; background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-file-label:hover, .custom-file-label.uploaded {
+            background: rgba(19, 136, 8, 0.15); border-color: var(--green); color: #fff;
+        }
+        .icon-upload { font-size: 1.5rem; margin-right: 10px; }
+
+        /* Text Input & Button */
+        input[type="text"] {
+            width: 100%; padding: 15px; border-radius: 50px; border: 2px solid #333;
+            background: #111; color: #fff; font-size: 16px; text-align: center; 
+            outline: none; margin-bottom: 20px; transition: 0.3s; font-family: 'Montserrat', sans-serif;
+        }
+        input[type="text"]:focus { border-color: var(--saffron); box-shadow: 0 0 15px rgba(255, 153, 51, 0.3); }
 
         .submit-btn {
             background: linear-gradient(90deg, var(--saffron), var(--white), var(--green));
-            border: none; padding: 12px 30px; border-radius: 30px;
-            color: var(--navy); font-weight: bold; font-size: 1rem;
-            text-transform: uppercase; cursor: pointer; letter-spacing: 2px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            transition: transform 0.2s;
+            border: none; padding: 15px 50px; border-radius: 50px; color: var(--navy);
+            font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4); transition: transform 0.2s;
         }
         .submit-btn:active { transform: scale(0.95); }
 
-
-        /* --- 2. GLOBAL ELEMENTS (SMOKE & JETS) --- */
-        /* ফিক্সড স্মোক কন্টেইনার */
-        .smoke-container {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 100vh;
-            pointer-events: none; z-index: 5; overflow: hidden;
-        }
-        .smoke-particle {
-            position: absolute; bottom: -100px; border-radius: 50%;
-            opacity: 0; filter: blur(30px);
-            animation: smokeRise 6s ease-out forwards;
-        }
-        @keyframes smokeRise {
-            0% { transform: translateY(0) scale(1); opacity: 0; }
-            20% { opacity: 0.8; }
-            100% { transform: translateY(-90vh) scale(4) translateX(var(--drift)); opacity: 0; }
-        }
-
-        /* জেট প্লেন */
-        .jet-airspace { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
-        .jet-container { position: absolute; transform-style: preserve-3d; }
-        .jet-body {
-            width: 0; height: 0;
-            border-left: 10px solid transparent; border-right: 10px solid transparent;
-            border-bottom: 40px solid #333;
-            transform: rotateZ(45deg); /* Simple representation */
-            filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.5));
-        }
-        .jet-trail {
-            position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-            width: 4px; height: 150px; border-radius: 5px; opacity: 0.8;
-            filter: blur(4px);
-        }
-        @keyframes flyOver {
-            0% { transform: translate(-100vw, 100vh) rotate(45deg) scale(0.5); }
-            100% { transform: translate(100vw, -100vh) rotate(45deg) scale(1.5); }
-        }
-
-
-        /* --- 3. SCROLL STAGE --- */
-        #stage {
-            height: 100vh; overflow-y: hidden; /* শুরুতে লক থাকবে */
-            scroll-behavior: smooth; scroll-snap-type: y mandatory;
+        /* --- 2. PHOTO FRAME STYLES --- */
+        .photo-container-wrapper { margin-bottom: 25px; display: none; }
+        .photo-frame {
+            width: clamp(180px, 45vw, 260px); height: clamp(180px, 45vw, 260px);
             position: relative; z-index: 10;
+            opacity: 0; transform: scale(0.5) translateY(30px);
+            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .photo-frame.reveal { opacity: 1; transform: scale(1) translateY(0); }
+
+        .flag-border-spin {
+            position: absolute; top: -12px; left: -12px; right: -12px; bottom: -12px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--saffron) 0deg 120deg, var(--white) 120deg 240deg, var(--green) 240deg 360deg);
+            animation: spinBorder 4s linear infinite;
+            box-shadow: 0 0 50px rgba(255, 153, 51, 0.5); z-index: -1; filter: blur(3px);
+        }
+        @keyframes spinBorder { to { transform: rotate(360deg); } }
+
+        .user-img {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+            border: 6px solid #fff; position: relative; z-index: 2; background: #222;
+            animation: gentleFloat 4s ease-in-out infinite alternate;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        @keyframes gentleFloat { 0% { transform: translateY(-6px); } 100% { transform: translateY(6px); } }
+
+        /* --- 3. BACKGROUND ELEMENTS --- */
+        .chakra-container {
+            position: fixed; bottom: -25vh; left: 50%;
+            width: 80vw; height: 80vw; max-width: 550px; max-height: 550px;
+            z-index: 1; pointer-events: none;
+        }
+        .chakra {
+            width: 100%; height: 100%; border-radius: 50%;
+            border: 8px solid var(--navy); position: relative;
+            animation: spin 25s linear infinite, glowPulse 5s ease-in-out infinite alternate;
+            background: radial-gradient(circle, rgba(0,0,80,0.4) 10%, transparent 70%);
+            box-shadow: 0 0 30px rgba(0,0,128,0.6), inset 0 0 50px rgba(0,0,50,0.8);
+        }
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 30px rgba(0, 0, 180, 0.5), inset 0 0 30px rgba(0,0,50,0.5); border-color: var(--navy); }
+            100% { box-shadow: 0 0 80px var(--neon-blue), inset 0 0 50px var(--neon-blue); border-color: #4444ff; }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spoke {
+            position: absolute; top: 0; left: 50%; width: 4px; height: 100%;
+            background: var(--navy); margin-left: -2px; box-shadow: 0 0 8px rgba(50,50,255,0.5);
+        }
+        .chakra::before {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 16%; height: 16%;
+            background: var(--navy); border-radius: 50%; box-shadow: 0 0 30px var(--neon-blue); z-index: 2;
         }
 
+        .fx-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
+        .smoke-p {
+            position: absolute; bottom: -100px; border-radius: 50%;
+            filter: blur(15px); opacity: 0;
+            animation: rise 6s ease-out forwards; will-change: transform, opacity;
+        }
+        @keyframes rise {
+            0% { transform: translate3d(0,0,0) scale(1); opacity: 0; }
+            30% { opacity: 0.7; }
+            100% { transform: translate3d(var(--x), -90vh, 0) scale(4); opacity: 0; }
+        }
+        .flower { position: absolute; top: -30px; font-size: 22px; animation: fall linear forwards; will-change: transform; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
+        @keyframes fall { to { transform: translate3d(0, 110vh, 0) rotate(360deg); } }
+        
+        .jet-layer { position: fixed; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+        .jet-wrap { position: absolute; will-change: transform; }
+        .jet { width: 35px; height: 35px; background: #111; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); transform: rotate(45deg); filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.8)); }
+        .trail { position: absolute; top: 20px; left: 50%; width: 4px; height: 150px; transform: translateX(-50%) rotate(45deg); transform-origin: top center; opacity: 0.9; filter: blur(4px); }
+
+        /* --- 4. MAIN STAGE --- */
+        #stage {
+            height: 100vh; overflow-y: hidden; scroll-behavior: smooth;
+            scroll-snap-type: y mandatory; position: relative; z-index: 10;
+        }
         .scene {
             height: 100vh; width: 100%; scroll-snap-align: start;
-            position: relative; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            padding: 20px; overflow: hidden;
-            /* হালকা গ্রেডিয়েন্ট ব্যাকগ্রাউন্ড */
-            background: radial-gradient(circle at center, rgba(10,10,18,0) 0%, rgba(10,10,18,0.8) 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative; padding: 30px; text-align: center; flex-grow: 1;
         }
-
-        /* --- SCENE 1: NAME REVEAL (HERO) --- */
-        .name-reveal-box {
-            text-align: center; z-index: 15;
-            transform-style: preserve-3d; perspective: 1000px;
-        }
-        
-        .sub-greeting {
-            color: #ccc; letter-spacing: 4px; font-size: 1rem; margin-bottom: 10px;
-            opacity: 0; animation: fadeIn 2s 1s forwards;
-        }
-
-        .user-name-3d {
+        .hero-intro { letter-spacing: 5px; color: #aaa; font-size: clamp(0.8rem, 3vw, 1rem); margin-bottom: 10px; font-weight: 600; }
+        .user-name {
             font-family: 'Cinzel Decorative', cursive;
-            font-size: clamp(3rem, 12vw, 5.5rem); line-height: 1.1; font-weight: 900;
-            text-transform: uppercase;
-            /* তেরঙ্গা গ্রেডিয়েন্ট */
-            background: linear-gradient(180deg, var(--saffron) 35%, var(--white) 50%, var(--green) 65%);
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-            /* গ্লোয়িং শ্যাডো */
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
-            opacity: 0; transform: scale(0.5) rotateX(90deg);
-            transition: all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: clamp(3rem, 12vw, 6rem); font-weight: 900; line-height: 1.1;
+            background: linear-gradient(180deg, var(--saffron) 25%, #fff 50%, var(--green) 75%);
+            -webkit-background-clip: text; color: transparent;
+            filter: drop-shadow(0 5px 25px rgba(0,0,0,0.9));
+            opacity: 0; transform: translateY(30px) scale(0.9); transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-        
-        .scroll-indicator {
-            position: absolute; bottom: 40px;
-            color: var(--white); font-size: 0.9rem; letter-spacing: 2px;
-            opacity: 0; animation: bounce 2s infinite 3s;
+        .user-name.reveal { opacity: 1; transform: translateY(0) scale(1); }
+        .hint {
+            position: absolute; bottom: 70px; color: rgba(255,255,255,0.6); font-size: 0.9rem;
+            animation: bounce 2s infinite; letter-spacing: 3px; font-weight: bold;
         }
-        .scroll-indicator span { display: block; font-size: 1.5rem; margin-top: 5px; }
-
-        @keyframes fadeIn { to { opacity: 1; } }
-        @keyframes bounce { 0%, 100% {transform: translateY(0); opacity: 0.7;} 50% {transform: translateY(10px); opacity: 1;} }
-
-
-        /* --- SCENE 2: ORIGINAL INTRO (Updated) --- */
-        .gradient-title {
-            font-family: 'Montserrat', sans-serif; font-weight: 900;
-            font-size: clamp(2.5rem, 10vw, 5rem); text-align: center;
-            background: linear-gradient(135deg, var(--saffron), var(--white), var(--green));
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-            text-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
+        .title-text {
+            font-size: clamp(2.5rem, 9vw, 5rem); font-weight: 800;
+            background: linear-gradient(45deg, var(--saffron), #fff, var(--green));
+            -webkit-background-clip: text; color: transparent;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.8));
         }
-
-        /* --- SCENE 3: ROTATING TEXT --- */
-        .rotating-wrapper {
-            perspective: 800px;
-        }
-        .tikarkhanji-text {
-            font-size: clamp(2rem, 8vw, 4rem); font-weight: 900;
-            color: rgba(255,255,255,0.9); text-align: center;
-            transform: rotateX(20deg);
-            text-shadow: 0 5px 0 #999, 0 10px 10px rgba(0,0,0,0.5);
-        }
-
-        /* --- SCENE 4: OUTRO --- */
-        .outro-text {
-            font-size: clamp(1.5rem, 6vw, 3rem); color: var(--saffron);
-            font-family: 'Cinzel Decorative', cursive;
-        }
-        .footer-credit {
-            position: absolute; bottom: 20px; font-size: 0.7rem; color: #555;
-        }
-        
-        /* অশোক চক্র ব্যাকগ্রাউন্ড (ফিক্সড) */
-        .bg-chakra {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80vw; height: 80vw; max-width: 500px; max-height: 500px;
-            border: 5px solid rgba(0, 0, 128, 0.1); border-radius: 50%;
-            z-index: 1; pointer-events: none;
-            animation: spinSlow 30s linear infinite;
-        }
-        .bg-chakra::before {
-            content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 100%;
-            background: rgba(0, 0, 128, 0.1);
-        }
-        .bg-chakra::after {
-            content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px;
-            background: rgba(0, 0, 128, 0.1);
-        }
-        @keyframes spinSlow { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
     </style>
 </head>
 <body>
 
-    <div class="bg-chakra"></div>
-    <div class="smoke-container" id="smokeArea"></div>
-    <div class="jet-airspace" id="jetArea"></div>
+    <audio id="bgMusic" loop>
+        <source src="https://upload.wikimedia.org/wikipedia/commons/5/52/Jana_Gana_Mana_instrumental.ogg" type="audio/ogg">
+    </audio>
+
+    <div class="music-control" id="musicBtn" onclick="toggleMusic()">
+        <span id="musicIcon">🔊</span>
+    </div>
+
+    <div class="chakra-container gpu" id="chakraBox">
+        <div class="chakra" id="chakraInner"></div>
+    </div>
+    <div class="fx-container" id="fxArea"></div>
+    <div class="jet-layer" id="jetArea"></div>
 
     <div id="entry-modal">
         <div class="modal-box">
             <h2 class="modal-title">Republic Day 2026</h2>
-            <input type="text" id="nameInput" placeholder="Enter Your Name..." autocomplete="off">
-            <button class="submit-btn" onclick="startCelebration()">Enter</button>
+            <div class="file-upload-wrapper">
+                <label for="photoInput" class="custom-file-label" id="fileLabel">
+                    <span class="icon-upload">📷</span> <span>Upload Photo (Optional)</span>
+                </label>
+                <input type="file" id="photoInput" accept="image/*" onchange="updateFileName()">
+            </div>
+            <input type="text" id="nameInput" placeholder="Enter Your Name" autocomplete="off">
+            <button class="submit-btn" onclick="startShow()">Jai Hind</button>
         </div>
     </div>
 
     <main id="stage">
-        
-        <section class="scene" id="hero-scene">
-            <div class="name-reveal-box">
-                <div class="sub-greeting">Celebrating the Spirit of India</div>
-                <div class="user-name-3d" id="displayName">INDIAN</div>
+        <section class="scene">
+            <div class="photo-container-wrapper" id="photoWrapper">
+                <div class="photo-frame" id="mainPhotoFrame">
+                    <div class="flag-border-spin"></div>
+                    <img src="" id="displayPhoto" class="user-img" alt="User">
+                </div>
             </div>
-            <div class="scroll-indicator">
-                Swipe Up to Explore
-                <span>&#11015;</span>
-            </div>
+            <div class="hero-intro">CELEBRATING INDIA</div>
+            <div class="user-name" id="displayName">INDIAN</div>
+            <div class="hint">SWIPE UP ▲</div>
         </section>
 
         <section class="scene">
-            <h1 class="gradient-title">26th JANUARY<br>REPUBLIC DAY</h1>
+            <h1 class="title-text">UNITY IN<br>DIVERSITY</h1>
         </section>
-
         <section class="scene">
-            <div class="rotating-wrapper">
-                <h1 class="tikarkhanji-text">TIKARKHANJI<br><span style="font-size: 0.5em; letter-spacing: 5px; color: var(--green);">JNYCTSD</span></h1>
-            </div>
+            <h1 class="title-text" style="font-family: 'Cinzel Decorative'">SATYAMEVA<br>JAYATE</h1>
         </section>
-
         <section class="scene">
-            <h2 class="outro-text">Vande Mataram</h2>
-            <div class="footer-credit">Created by Achintya Ghosh</div>
+            <h2 style="color: var(--saffron); font-size: 2.5rem; font-family: 'Cinzel Decorative';">Vande Mataram</h2>
+            <p style="color: #777; margin-top: 15px; font-size: 0.9rem; letter-spacing: 2px;">Design Concept by Achintya</p>
         </section>
-
     </main>
 
     <script>
-        // ফাংশন ১: সেলিব্রেশন শুরু
-        function startCelebration() {
-            const input = document.getElementById('nameInput');
-            const modal = document.getElementById('entry-modal');
-            const displayName = document.getElementById('displayName');
-            const stage = document.getElementById('stage');
-            const nameReveal = document.querySelector('.user-name-3d');
+        // --- CHAKRA ---
+        const chakraInner = document.getElementById('chakraInner');
+        const frag = document.createDocumentFragment();
+        for(let i=0; i<12; i++) {
+            let s = document.createElement('div');
+            s.className = 'spoke'; s.style.transform = `rotate(${i * 15}deg)`;
+            frag.appendChild(s);
+        }
+        chakraInner.appendChild(frag);
 
-            const name = input.value.trim();
-            if(!name) { alert("Please enter your name!"); return; }
+        // --- AUDIO LOGIC ---
+        const audio = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+        const musicIcon = document.getElementById('musicIcon');
+        let isPlaying = false;
 
-            // নাম সেট করা
-            displayName.innerText = name;
-
-            // মডাল ফেড আউট
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.style.display = 'none';
-                
-                // স্ক্রল এনাবল করা
-                stage.style.overflowY = 'scroll';
-
-                // নামের অ্যানিমেশন ট্রিগার
-                nameReveal.style.opacity = '1';
-                nameReveal.style.transform = 'scale(1) rotateX(0deg)';
-
-                // এফেক্ট শুরু
-                launchSmoke();
-                launchJets();
-
-            }, 800);
+        function toggleMusic() {
+            if(isPlaying) {
+                audio.pause();
+                musicIcon.innerText = "🔇";
+                isPlaying = false;
+            } else {
+                audio.play();
+                musicIcon.innerText = "🔊";
+                isPlaying = true;
+            }
         }
 
-        // ফাংশন ২: রিয়ালিস্টিক তেরঙ্গা স্মোক
-        function launchSmoke() {
-            const container = document.getElementById('smokeArea');
-            const colors = [
-                'radial-gradient(circle, rgba(255,153,51,0.9) 0%, transparent 70%)', // গেরুয়া
-                'radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%)', // সাদা
-                'radial-gradient(circle, rgba(19,136,8,0.9) 0%, transparent 70%)'    // সবুজ
-            ];
-            
-            // স্মোক জেনারেশন লুপ
-            setInterval(() => {
-                const p = document.createElement('div');
-                p.classList.add('smoke-particle');
-                
-                // সাইজ এবং পজিশন
-                const size = Math.random() * 120 + 80;
-                p.style.width = size + 'px';
-                p.style.height = size + 'px';
-                p.style.left = Math.random() * 100 + '%';
-                
-                // কালার র্যান্ডম সিলেকশন
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                p.style.background = color;
-
-                // ড্রিফট (বাতাশে নড়া)
-                const drift = (Math.random() - 0.5) * 300 + 'px';
-                p.style.setProperty('--drift', drift);
-
-                container.appendChild(p);
-                setTimeout(() => p.remove(), 6000);
-            }, 300); // প্রতি ৩০০ মিলিসেকেন্ডে স্মোক বেরোবে
+        // --- FILE INPUT ---
+        function updateFileName() {
+            const input = document.getElementById('photoInput');
+            const label = document.getElementById('fileLabel');
+            if(input.files && input.files[0]) {
+                label.innerHTML = "<span class='icon-upload'>✅</span> <span>Photo Selected!</span>";
+                label.classList.add('uploaded');
+            }
         }
 
-        // ফাংশন ৩: জেট প্লেন ফ্লাইওভার
-        function launchJets() {
-            const airspace = document.getElementById('jetArea');
-            const trailColors = ['#FF9933', '#FFFFFF', '#138808'];
+        // --- START SHOW ---
+        function startShow() {
+            const nameInput = document.getElementById('nameInput');
+            const photoInput = document.getElementById('photoInput');
+            const name = nameInput.value.trim();
 
-            function createJet(delay, color) {
-                setTimeout(() => {
-                    const jet = document.createElement('div');
-                    jet.className = 'jet-container';
-                    jet.innerHTML = `
-                        <div class="jet-body"></div>
-                        <div class="jet-trail" style="background: linear-gradient(to top, ${color}, transparent);"></div>
-                    `;
-                    
-                    // অ্যানিমেশন সেটআপ
-                    jet.style.animation = `flyOver 4s linear forwards`;
-                    airspace.appendChild(jet);
-
-                    setTimeout(() => jet.remove(), 4000);
-                }, delay);
+            if(!name) { 
+                nameInput.style.borderColor = 'red'; nameInput.focus();
+                setTimeout(()=> nameInput.style.borderColor = '#333', 1000);
+                return; 
             }
 
-            // তিনটি জেট একসাথে ছাড়বে
-            createJet(500, trailColors[0]);
-            createJet(800, trailColors[1]);
-            createJet(1100, trailColors[2]);
+            // PLAY MUSIC
+            audio.play().then(() => {
+                isPlaying = true;
+                musicBtn.style.display = 'flex'; // Show music controls
+            }).catch(error => {
+                console.log("Auto-play prevented. User needs to interact.", error);
+                musicBtn.style.display = 'flex';
+                musicIcon.innerText = "🔇"; // Start muted if blocked
+            });
 
-            // পুনরাবৃত্তি (অপশনাল)
-            setInterval(() => {
-                if(Math.random() > 0.7) { // মাঝে মাঝে র্যান্ডম জেট যাবে
-                    createJet(0, trailColors[Math.floor(Math.random()*3)]);
-                }
-            }, 5000);
+            // Set Content
+            const displayName = document.getElementById('displayName');
+            displayName.innerText = name;
+            const photoWrapper = document.getElementById('photoWrapper');
+            const photoFrame = document.getElementById('mainPhotoFrame');
+            const displayPhoto = document.getElementById('displayPhoto');
+            let hasPhoto = false;
+
+            if (photoInput.files && photoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) { displayPhoto.src = e.target.result; };
+                reader.readAsDataURL(photoInput.files[0]);
+                hasPhoto = true; photoWrapper.style.display = "block";
+            } else { photoWrapper.style.display = "none"; }
+
+            // Transitions
+            const modal = document.getElementById('entry-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => { 
+                modal.style.display = 'none'; 
+                document.getElementById('stage').style.overflowY = 'scroll';
+                displayName.classList.add('reveal');
+                if(hasPhoto) { setTimeout(() => { photoFrame.classList.add('reveal'); }, 100); }
+                runFX(); flyJets();
+            }, 700);
         }
 
+        // --- SCROLL ZOOM ---
+        const stage = document.getElementById('stage');
+        const box = document.getElementById('chakraBox');
+        let busy = false;
+        stage.addEventListener('scroll', () => {
+            if(!busy) {
+                requestAnimationFrame(() => {
+                    const pct = stage.scrollTop / window.innerHeight;
+                    const scale = 1 + (pct * 1.8); 
+                    const y = pct * 80; 
+                    box.style.transform = `translate3d(-50%, ${y}px, 0) scale(${scale})`;
+                    busy = false;
+                });
+                busy = true;
+            }
+        }, { passive: true });
+
+        // --- FX SYSTEM ---
+        function runFX() {
+            const container = document.getElementById('fxArea');
+            const smokeColors = ['rgba(255, 140, 0, 0.85)', 'rgba(240, 240, 240, 0.8)', 'rgba(0, 150, 0, 0.85)'];
+            const flowers = ['🌸', '🏵️', '🌺', '🌼'];
+            let tick = 0;
+            setInterval(() => {
+                tick++;
+                if(container.childElementCount > 22) return;
+                const s = document.createElement('div');
+                s.className = 'smoke-p';
+                const size = Math.random() * 100 + 100;
+                s.style.width = size + 'px'; s.style.height = size + 'px';
+                s.style.background = smokeColors[tick % 3];
+                s.style.left = Math.random() * 90 + '%';
+                s.style.setProperty('--x', (Math.random()-0.5)*180 + 'px');
+                container.appendChild(s);
+                setTimeout(() => s.remove(), 5800);
+                if(tick % 2 === 0) {
+                    const f = document.createElement('div');
+                    f.className = 'flower';
+                    f.innerText = flowers[Math.floor(Math.random() * flowers.length)];
+                    f.style.left = Math.random() * 95 + '%';
+                    const dur = Math.random() * 2 + 4;
+                    f.style.animationDuration = dur + 's';
+                    container.appendChild(f);
+                    setTimeout(() => f.remove(), dur * 1000);
+                }
+            }, 500);
+        }
+
+        // --- JETS ---
+        function flyJets() {
+            const area = document.getElementById('jetArea');
+            const colors = ['#FF9933', '#FFF', '#138808'];
+            colors.forEach((col, i) => {
+                setTimeout(() => {
+                    const d = document.createElement('div');
+                    d.className = 'jet-wrap';
+                    d.innerHTML = `<div class="jet"></div><div class="trail" style="background:${col};"></div>`;
+                    d.style.left = '-60px'; d.style.top = (25 + i*12) + '%';
+                    const anim = d.animate([ { transform: 'translate3d(0,0,0) scale(0.7)' }, { transform: 'translate3d(120vw, -50vh, 0) scale(1.6)' } ], { duration: 3800, easing: 'linear' });
+                    area.appendChild(d);
+                    anim.onfinish = () => d.remove();
+                }, i * 450);
+            });
+        }
     </script>
 </body>
 </html>
