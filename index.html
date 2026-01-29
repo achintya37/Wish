@@ -2,414 +2,452 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Republic Day 2026 | Musical Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIKARKHANJI JNYCTSD - Professional System</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
+        /* --- GLOBAL & UI STYLES --- */
         :root {
-            --saffron: #FF9933;
-            --white: #FFFFFF;
-            --green: #138808;
-            --navy: #000080;
-            --neon-blue: #00eaff;
-            --deep-bg: #030305;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--deep-bg);
-            color: var(--white);
-            overflow: hidden; 
-            height: 100vh; width: 100vw;
-            touch-action: pan-y;
-            overscroll-behavior: none;
-        }
-
-        /* --- GPU Utility --- */
-        .gpu { transform: translate3d(0,0,0); backface-visibility: hidden; will-change: transform; }
-
-        /* --- MUSIC CONTROL BTN --- */
-        .music-control {
-            position: fixed; top: 20px; right: 20px; z-index: 10001;
-            width: 45px; height: 45px; border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            display: none; /* Hidden initially */
-            justify-content: center; align-items: center;
-            cursor: pointer; backdrop-filter: blur(5px);
-            animation: pulseBtn 2s infinite;
-        }
-        .music-control span { font-size: 20px; }
-        @keyframes pulseBtn { 0% {box-shadow: 0 0 0 0 rgba(255,255,255,0.2);} 70% {box-shadow: 0 0 0 10px rgba(255,255,255,0);} 100% {box-shadow: 0 0 0 0 rgba(255,255,255,0);} }
-
-
-        /* --- 1. MODAL STYLES --- */
-        #entry-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.96); z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-            transition: opacity 0.6s ease; padding: 20px;
-        }
-        .modal-box {
-            background: rgba(25, 25, 35, 0.95); border: 2px solid rgba(255, 153, 51, 0.2);
-            padding: 30px 25px; border-radius: 25px; text-align: center; width: 100%; max-width: 380px;
-            box-shadow: 0 0 60px rgba(0,0,0,0.9);
-        }
-        .modal-title {
-            font-family: 'Cinzel Decorative', cursive; 
-            background: linear-gradient(to right, var(--saffron), #fff, var(--green));
-            -webkit-background-clip: text; color: transparent;
-            font-size: 1.8rem; margin-bottom: 25px; text-transform: uppercase;
+            --primary: #1a237e; /* Deep Blue */
+            --gold: #d4af37;    /* Gold */
+            --bg: #f4f6f8;
         }
         
-        /* Custom File Upload Styling */
-        .file-upload-wrapper { margin-bottom: 20px; }
-        input[type="file"] { display: none; }
-        .custom-file-label {
-            display: flex; align-items: center; justify-content: center;
-            padding: 15px; border: 2px dashed rgba(255, 255, 255, 0.3);
-            border-radius: 15px; color: #aaa; cursor: pointer; font-weight: 600;
-            transition: 0.3s; background: rgba(255, 255, 255, 0.05);
-        }
-        .custom-file-label:hover, .custom-file-label.uploaded {
-            background: rgba(19, 136, 8, 0.15); border-color: var(--green); color: #fff;
-        }
-        .icon-upload { font-size: 1.5rem; margin-right: 10px; }
-
-        /* Text Input & Button */
-        input[type="text"] {
-            width: 100%; padding: 15px; border-radius: 50px; border: 2px solid #333;
-            background: #111; color: #fff; font-size: 16px; text-align: center; 
-            outline: none; margin-bottom: 20px; transition: 0.3s; font-family: 'Montserrat', sans-serif;
-        }
-        input[type="text"]:focus { border-color: var(--saffron); box-shadow: 0 0 15px rgba(255, 153, 51, 0.3); }
-
-        .submit-btn {
-            background: linear-gradient(90deg, var(--saffron), var(--white), var(--green));
-            border: none; padding: 15px 50px; border-radius: 50px; color: var(--navy);
-            font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4); transition: transform 0.2s;
-        }
-        .submit-btn:active { transform: scale(0.95); }
-
-        /* --- 2. PHOTO FRAME STYLES --- */
-        .photo-container-wrapper { margin-bottom: 25px; display: none; }
-        .photo-frame {
-            width: clamp(180px, 45vw, 260px); height: clamp(180px, 45vw, 260px);
-            position: relative; z-index: 10;
-            opacity: 0; transform: scale(0.5) translateY(30px);
-            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .photo-frame.reveal { opacity: 1; transform: scale(1) translateY(0); }
-
-        .flag-border-spin {
-            position: absolute; top: -12px; left: -12px; right: -12px; bottom: -12px;
-            border-radius: 50%;
-            background: conic-gradient(from 0deg, var(--saffron) 0deg 120deg, var(--white) 120deg 240deg, var(--green) 240deg 360deg);
-            animation: spinBorder 4s linear infinite;
-            box-shadow: 0 0 50px rgba(255, 153, 51, 0.5); z-index: -1; filter: blur(3px);
-        }
-        @keyframes spinBorder { to { transform: rotate(360deg); } }
-
-        .user-img {
-            width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
-            border: 6px solid #fff; position: relative; z-index: 2; background: #222;
-            animation: gentleFloat 4s ease-in-out infinite alternate;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-        }
-        @keyframes gentleFloat { 0% { transform: translateY(-6px); } 100% { transform: translateY(6px); } }
-
-        /* --- 3. BACKGROUND ELEMENTS --- */
-        .chakra-container {
-            position: fixed; bottom: -25vh; left: 50%;
-            width: 80vw; height: 80vw; max-width: 550px; max-height: 550px;
-            z-index: 1; pointer-events: none;
-        }
-        .chakra {
-            width: 100%; height: 100%; border-radius: 50%;
-            border: 8px solid var(--navy); position: relative;
-            animation: spin 25s linear infinite, glowPulse 5s ease-in-out infinite alternate;
-            background: radial-gradient(circle, rgba(0,0,80,0.4) 10%, transparent 70%);
-            box-shadow: 0 0 30px rgba(0,0,128,0.6), inset 0 0 50px rgba(0,0,50,0.8);
-        }
-        @keyframes glowPulse {
-            0% { box-shadow: 0 0 30px rgba(0, 0, 180, 0.5), inset 0 0 30px rgba(0,0,50,0.5); border-color: var(--navy); }
-            100% { box-shadow: 0 0 80px var(--neon-blue), inset 0 0 50px var(--neon-blue); border-color: #4444ff; }
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .spoke {
-            position: absolute; top: 0; left: 50%; width: 4px; height: 100%;
-            background: var(--navy); margin-left: -2px; box-shadow: 0 0 8px rgba(50,50,255,0.5);
-        }
-        .chakra::before {
-            content: ''; position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); width: 16%; height: 16%;
-            background: var(--navy); border-radius: 50%; box-shadow: 0 0 30px var(--neon-blue); z-index: 2;
-        }
-
-        .fx-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
-        .smoke-p {
-            position: absolute; bottom: -100px; border-radius: 50%;
-            filter: blur(15px); opacity: 0;
-            animation: rise 6s ease-out forwards; will-change: transform, opacity;
-        }
-        @keyframes rise {
-            0% { transform: translate3d(0,0,0) scale(1); opacity: 0; }
-            30% { opacity: 0.7; }
-            100% { transform: translate3d(var(--x), -90vh, 0) scale(4); opacity: 0; }
-        }
-        .flower { position: absolute; top: -30px; font-size: 22px; animation: fall linear forwards; will-change: transform; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
-        @keyframes fall { to { transform: translate3d(0, 110vh, 0) rotate(360deg); } }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
         
-        .jet-layer { position: fixed; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
-        .jet-wrap { position: absolute; will-change: transform; }
-        .jet { width: 35px; height: 35px; background: #111; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); transform: rotate(45deg); filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.8)); }
-        .trail { position: absolute; top: 20px; left: 50%; width: 4px; height: 150px; transform: translateX(-50%) rotate(45deg); transform-origin: top center; opacity: 0.9; filter: blur(4px); }
+        /* Navigation */
+        .navbar { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .nav-brand { font-size: 1.4rem; font-weight: bold; border-left: 4px solid var(--gold); padding-left: 10px; }
+        .nav-menu button { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: white; padding: 8px 15px; margin-left: 5px; cursor: pointer; border-radius: 4px; transition: 0.3s; }
+        .nav-menu button:hover { background: var(--gold); color: var(--primary); font-weight: bold; }
 
-        /* --- 4. MAIN STAGE --- */
-        #stage {
-            height: 100vh; overflow-y: hidden; scroll-behavior: smooth;
-            scroll-snap-type: y mandatory; position: relative; z-index: 10;
+        /* Container */
+        .container { max-width: 1100px; margin: 20px auto; padding: 15px; }
+        .section { display: none; animation: fadeIn 0.4s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Card Styles */
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border-top: 4px solid var(--primary); }
+        .card h2 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+
+        /* Form Grid */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        /* Selection Box (New Feature) */
+        .selection-box {
+            background: #e8eaf6; border: 1px solid var(--primary); padding: 15px; 
+            border-radius: 5px; text-align: center; margin: 20px 0;
         }
-        .scene {
-            height: 100vh; width: 100%; scroll-snap-align: start;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            position: relative; padding: 30px; text-align: center; flex-grow: 1;
+        .checkbox-group { display: inline-block; margin: 0 15px; font-weight: bold; cursor: pointer; }
+        .checkbox-group input { transform: scale(1.2); margin-right: 5px; }
+
+        /* Marks Table */
+        .marks-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .marks-table th { background: var(--primary); color: white; padding: 8px; font-size: 0.9rem; }
+        .marks-table td { border: 1px solid #ddd; padding: 5px; text-align: center; }
+        .marks-table input { width: 100%; border: none; text-align: center; outline: none; font-size: 1rem; }
+
+        .btn-generate { background: #28a745; color: white; padding: 12px 30px; border: none; font-size: 1.1rem; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
+        .btn-generate:hover { background: #218838; transform: scale(1.02); }
+
+        /* --- PDF TEMPLATES (A4 Size & Design) --- */
+        .a4-page {
+            width: 210mm; min-height: 297mm; background: white; margin: 0 auto;
+            position: relative; box-sizing: border-box; color: #000;
+            display: none; /* Hidden strictly */
         }
-        .hero-intro { letter-spacing: 5px; color: #aaa; font-size: clamp(0.8rem, 3vw, 1rem); margin-bottom: 10px; font-weight: 600; }
-        .user-name {
-            font-family: 'Cinzel Decorative', cursive;
-            font-size: clamp(3rem, 12vw, 6rem); font-weight: 900; line-height: 1.1;
-            background: linear-gradient(180deg, var(--saffron) 25%, #fff 50%, var(--green) 75%);
-            -webkit-background-clip: text; color: transparent;
-            filter: drop-shadow(0 5px 25px rgba(0,0,0,0.9));
-            opacity: 0; transform: translateY(30px) scale(0.9); transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+        /* Certificate Design (Pure CSS for Offline Safety) */
+        .cert-container {
+            height: 100%; padding: 10mm;
+            /* Background Pattern using CSS to avoid Image Load Error */
+            background-image: radial-gradient(#f3f3f3 15%, transparent 16%), radial-gradient(#f3f3f3 15%, transparent 16%);
+            background-size: 30px 30px; background-position: 0 0, 15px 15px;
         }
-        .user-name.reveal { opacity: 1; transform: translateY(0) scale(1); }
-        .hint {
-            position: absolute; bottom: 70px; color: rgba(255,255,255,0.6); font-size: 0.9rem;
-            animation: bounce 2s infinite; letter-spacing: 3px; font-weight: bold;
+        .cert-border {
+            border: 15px solid transparent;
+            border-image: linear-gradient(to bottom right, var(--primary) 0%, var(--gold) 100%);
+            border-image-slice: 1;
+            height: 100%; padding: 30px; text-align: center; position: relative;
+            background: white; /* Clear background over pattern */
         }
-        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
-        .title-text {
-            font-size: clamp(2.5rem, 9vw, 5rem); font-weight: 800;
-            background: linear-gradient(45deg, var(--saffron), #fff, var(--green));
-            -webkit-background-clip: text; color: transparent;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.8));
-        }
+        
+        .inst-header h1 { color: var(--primary); font-size: 38px; text-transform: uppercase; margin: 0; letter-spacing: 2px; }
+        .govt-badge { background: var(--primary); color: var(--gold); padding: 5px 20px; border-radius: 20px; font-weight: bold; display: inline-block; margin: 10px 0; font-size: 14px; }
+        
+        .cert-title { font-family: serif; color: var(--gold); font-size: 42px; margin: 30px 0; text-shadow: 1px 1px 0 #000; }
+        
+        .student-name { font-family: 'Times New Roman', serif; font-size: 32px; color: var(--primary); font-weight: bold; border-bottom: 2px dotted #999; display: inline-block; min-width: 300px; margin: 10px 0; }
+        
+        .cert-footer { display: flex; justify-content: space-between; margin-top: 80px; padding: 0 20px; }
+        .sig-box { text-align: center; width: 200px; border-top: 1px solid #333; padding-top: 5px; font-weight: bold; }
+
+        /* Marksheet Design */
+        .mark-container { padding: 15mm; height: 100%; box-sizing: border-box; }
+        .mark-border { border: 3px double var(--primary); height: 100%; padding: 20px; position: relative; }
+        
+        .result-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .result-table th { border: 1px solid #000; padding: 8px; background: #eee; }
+        .result-table td { border: 1px solid #000; padding: 8px; text-align: center; }
+        .subject-col { text-align: left !important; padding-left: 10px !important; }
+
+        /* Verification Page */
+        .verify-box { max-width: 500px; margin: 50px auto; text-align: center; }
+        .result-card { text-align: left; margin-top: 20px; padding: 15px; border: 1px solid #ddd; display: none; background: #fff; }
 
     </style>
 </head>
 <body>
 
-    <audio id="bgMusic" loop>
-        <source src="https://upload.wikimedia.org/wikipedia/commons/5/52/Jana_Gana_Mana_instrumental.ogg" type="audio/ogg">
-    </audio>
+    <nav class="navbar">
+        <div class="nav-brand">TIKARKHANJI JNYCTSD</div>
+        <div class="nav-menu">
+            <button onclick="showSection('admin')">Data Entry</button>
+            <button onclick="showSection('verify')">Verification</button>
+        </div>
+    </nav>
 
-    <div class="music-control" id="musicBtn" onclick="toggleMusic()">
-        <span id="musicIcon">🔊</span>
-    </div>
+    <div class="container">
 
-    <div class="chakra-container gpu" id="chakraBox">
-        <div class="chakra" id="chakraInner"></div>
-    </div>
-    <div class="fx-container" id="fxArea"></div>
-    <div class="jet-layer" id="jetArea"></div>
-
-    <div id="entry-modal">
-        <div class="modal-box">
-            <h2 class="modal-title">Republic Day 2026</h2>
-            <div class="file-upload-wrapper">
-                <label for="photoInput" class="custom-file-label" id="fileLabel">
-                    <span class="icon-upload">📷</span> <span>Upload Photo (Optional)</span>
-                </label>
-                <input type="file" id="photoInput" accept="image/*" onchange="updateFileName()">
+        <div id="admin-section" class="section active">
+            
+            <div class="card">
+                <h2>Student Details</h2>
+                <div class="form-grid">
+                    <div class="form-group"><label>Student Name</label><input type="text" id="sName" placeholder="Full Name"></div>
+                    <div class="form-group"><label>Father/Guardian</label><input type="text" id="fName" placeholder="Father Name"></div>
+                    <div class="form-group"><label>Reg. Number</label><input type="text" id="regNo"></div>
+                    <div class="form-group"><label>Roll Number</label><input type="text" id="rollNo"></div>
+                    <div class="form-group"><label>Course</label><input type="text" id="course" value="Diploma in Computer Application"></div>
+                    <div class="form-group"><label>Session</label><input type="text" id="session" value="2024-2025"></div>
+                    <div class="form-group"><label>Photo (Optional)</label><input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(this)"></div>
+                </div>
             </div>
-            <input type="text" id="nameInput" placeholder="Enter Your Name" autocomplete="off">
-            <button class="submit-btn" onclick="startShow()">Jai Hind</button>
+
+            <div class="card">
+                <h2>Marks Entry</h2>
+                <table class="marks-table" id="inputTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%">Subject Name</th>
+                            <th>Theory (70)</th>
+                            <th>Practical (30)</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><input type="text" value="Computer Fundamental"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
+                        <tr><td><input type="text" value="Office Automation"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
+                        <tr><td><input type="text" value="Programming in C"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
+                        <tr><td><input type="text" value="Internet Technology"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
+                        <tr><td><input type="text" value="Soft Skills"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
+                    </tbody>
+                </table>
+                <div style="text-align: right; margin-top: 10px; font-weight: bold;">
+                    Total: <span id="grandTotal">0</span> | Percentage: <span id="percentage">0</span>% | Grade: <span id="grade">F</span>
+                </div>
+            </div>
+
+            <div class="card" style="text-align: center;">
+                <h3>Document Generation Options</h3>
+                <div class="selection-box">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="genCert" checked> Generate Certificate
+                    </label>
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="genMark" checked> Generate Marksheet
+                    </label>
+                </div>
+                <button class="btn-generate" onclick="processData()">SAVE DATA & GENERATE PDF</button>
+            </div>
+        </div>
+
+        <div id="verify-section" class="section">
+            <div class="card verify-box">
+                <h2>Check Student Status</h2>
+                <input type="text" id="searchRef" placeholder="Enter Ref No (e.g., TIK-JNYCTSD-2026-12345)" style="padding: 10px; width: 80%; margin-bottom: 10px;">
+                <br>
+                <button class="btn-generate" onclick="verifyStudent()">SEARCH</button>
+
+                <div id="verifyResult" class="result-card"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="pdf-cert" class="a4-page">
+        <div class="cert-container">
+            <div class="cert-border">
+                <div style="position: absolute; top: 40px; right: 40px; width: 100px; height: 120px; border: 1px solid #ddd; padding: 2px;">
+                    <img id="c-photo" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    <div id="c-photo-placeholder" style="width: 100%; height: 100%; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #777;">PHOTO</div>
+                </div>
+
+                <div class="inst-header">
+                    <h1>Tikarkhanji JNYCTSD</h1>
+                    <p style="margin: 5px 0; color: #555;">Tikarkhanji, Katwa, Purba Bardhaman</p>
+                    <div class="govt-badge">ভারত সরকার অনুমোদিত</div>
+                </div>
+
+                <h2 class="cert-title">Certificate of Completion</h2>
+
+                <div style="font-size: 18px; line-height: 1.6; font-family: 'Times New Roman', serif; margin-top: 40px;">
+                    <p>Ref No: <b id="c-ref"></b></p>
+                    <p>This is to certify that</p>
+                    <div class="student-name" id="c-name">STUDENT NAME</div>
+                    <p>Son/Daughter of <b id="c-fname">Father Name</b></p>
+                    <p>has successfully completed the course</p>
+                    <h3 id="c-course" style="color: var(--primary); font-size: 24px;">COURSE NAME</h3>
+                    <p>Session: <b id="c-session">2024-25</b> &nbsp;|&nbsp; Grade: <b id="c-grade">A</b></p>
+                </div>
+
+                <div class="cert-footer">
+                    <div class="sig-box">
+                        <p id="c-date">Date: </p>
+                        Issue Date
+                    </div>
+                    <div style="width: 90px; height: 90px; border: 3px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: bold; transform: rotate(-15deg);">
+                        OFFICIAL<br>SEAL
+                    </div>
+                    <div class="sig-box">
+                        <br>
+                        Director Signature
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <main id="stage">
-        <section class="scene">
-            <div class="photo-container-wrapper" id="photoWrapper">
-                <div class="photo-frame" id="mainPhotoFrame">
-                    <div class="flag-border-spin"></div>
-                    <img src="" id="displayPhoto" class="user-img" alt="User">
+    <div id="pdf-mark" class="a4-page">
+        <div class="mark-container">
+            <div class="mark-border">
+                <div style="text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
+                    <h1 style="margin:0; color: var(--primary);">TIKARKHANJI JNYCTSD</h1>
+                    <p style="margin: 5px;">Tikarkhanji, Katwa, Purba Bardhaman</p>
+                    <span style="background: var(--primary); color: white; padding: 2px 10px; font-size: 12px;">ভারত সরকার অনুমোদিত</span>
+                    <h3 style="margin-top: 15px; text-decoration: underline;">STATEMENT OF MARKS</h3>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; font-size: 14px;">
+                    <div><strong>Name:</strong> <span id="m-name"></span></div>
+                    <div><strong>Ref No:</strong> <span id="m-ref"></span></div>
+                    <div><strong>Father Name:</strong> <span id="m-fname"></span></div>
+                    <div><strong>Reg No:</strong> <span id="m-reg"></span></div>
+                    <div><strong>Course:</strong> <span id="m-course"></span></div>
+                    <div><strong>Roll No:</strong> <span id="m-roll"></span></div>
+                    <div><strong>Session:</strong> <span id="m-session"></span></div>
+                </div>
+
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th class="subject-col">Subject Name</th>
+                            <th>Theory (70)</th>
+                            <th>Practical (30)</th>
+                            <th>Total (100)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="m-tbody">
+                        </tbody>
+                </table>
+
+                <div style="margin-top: 20px; border: 1px solid #000; padding: 10px; display: flex; justify-content: space-around; background: #f9f9f9; font-weight: bold;">
+                    <div>Grand Total: <span id="m-total"></span></div>
+                    <div>Percentage: <span id="m-percent"></span>%</div>
+                    <div>Grade: <span id="m-grade"></span></div>
+                    <div>Result: <span id="m-result"></span></div>
+                </div>
+
+                <div style="position: absolute; bottom: 50px; left: 0; width: 100%; padding: 0 40px; box-sizing: border-box; display: flex; justify-content: space-between;">
+                    <div class="sig-box">Verified By</div>
+                    <div class="sig-box">Controller of Examinations</div>
                 </div>
             </div>
-            <div class="hero-intro">CELEBRATING INDIA</div>
-            <div class="user-name" id="displayName">INDIAN</div>
-            <div class="hint">SWIPE UP ▲</div>
-        </section>
-
-        <section class="scene">
-            <h1 class="title-text">UNITY IN<br>DIVERSITY</h1>
-        </section>
-        <section class="scene">
-            <h1 class="title-text" style="font-family: 'Cinzel Decorative'">SATYAMEVA<br>JAYATE</h1>
-        </section>
-        <section class="scene">
-            <h2 style="color: var(--saffron); font-size: 2.5rem; font-family: 'Cinzel Decorative';">Vande Mataram</h2>
-            <p style="color: #777; margin-top: 15px; font-size: 0.9rem; letter-spacing: 2px;">Design Concept by Achintya</p>
-        </section>
-    </main>
+        </div>
+    </div>
 
     <script>
-        // --- CHAKRA ---
-        const chakraInner = document.getElementById('chakraInner');
-        const frag = document.createDocumentFragment();
-        for(let i=0; i<12; i++) {
-            let s = document.createElement('div');
-            s.className = 'spoke'; s.style.transform = `rotate(${i * 15}deg)`;
-            frag.appendChild(s);
-        }
-        chakraInner.appendChild(frag);
-
-        // --- AUDIO LOGIC ---
-        const audio = document.getElementById('bgMusic');
-        const musicBtn = document.getElementById('musicBtn');
-        const musicIcon = document.getElementById('musicIcon');
-        let isPlaying = false;
-
-        function toggleMusic() {
-            if(isPlaying) {
-                audio.pause();
-                musicIcon.innerText = "🔇";
-                isPlaying = false;
-            } else {
-                audio.play();
-                musicIcon.innerText = "🔊";
-                isPlaying = true;
-            }
+        // --- Navigation ---
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id + '-section').classList.add('active');
         }
 
-        // --- FILE INPUT ---
-        function updateFileName() {
-            const input = document.getElementById('photoInput');
-            const label = document.getElementById('fileLabel');
-            if(input.files && input.files[0]) {
-                label.innerHTML = "<span class='icon-upload'>✅</span> <span>Photo Selected!</span>";
-                label.classList.add('uploaded');
-            }
-        }
-
-        // --- START SHOW ---
-        function startShow() {
-            const nameInput = document.getElementById('nameInput');
-            const photoInput = document.getElementById('photoInput');
-            const name = nameInput.value.trim();
-
-            if(!name) { 
-                nameInput.style.borderColor = 'red'; nameInput.focus();
-                setTimeout(()=> nameInput.style.borderColor = '#333', 1000);
-                return; 
-            }
-
-            // PLAY MUSIC
-            audio.play().then(() => {
-                isPlaying = true;
-                musicBtn.style.display = 'flex'; // Show music controls
-            }).catch(error => {
-                console.log("Auto-play prevented. User needs to interact.", error);
-                musicBtn.style.display = 'flex';
-                musicIcon.innerText = "🔇"; // Start muted if blocked
-            });
-
-            // Set Content
-            const displayName = document.getElementById('displayName');
-            displayName.innerText = name;
-            const photoWrapper = document.getElementById('photoWrapper');
-            const photoFrame = document.getElementById('mainPhotoFrame');
-            const displayPhoto = document.getElementById('displayPhoto');
-            let hasPhoto = false;
-
-            if (photoInput.files && photoInput.files[0]) {
+        // --- Photo Handling ---
+        let photoData = null;
+        function previewPhoto(input) {
+            if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function (e) { displayPhoto.src = e.target.result; };
-                reader.readAsDataURL(photoInput.files[0]);
-                hasPhoto = true; photoWrapper.style.display = "block";
-            } else { photoWrapper.style.display = "none"; }
-
-            // Transitions
-            const modal = document.getElementById('entry-modal');
-            modal.style.opacity = '0';
-            setTimeout(() => { 
-                modal.style.display = 'none'; 
-                document.getElementById('stage').style.overflowY = 'scroll';
-                displayName.classList.add('reveal');
-                if(hasPhoto) { setTimeout(() => { photoFrame.classList.add('reveal'); }, 100); }
-                runFX(); flyJets();
-            }, 700);
-        }
-
-        // --- SCROLL ZOOM ---
-        const stage = document.getElementById('stage');
-        const box = document.getElementById('chakraBox');
-        let busy = false;
-        stage.addEventListener('scroll', () => {
-            if(!busy) {
-                requestAnimationFrame(() => {
-                    const pct = stage.scrollTop / window.innerHeight;
-                    const scale = 1 + (pct * 1.8); 
-                    const y = pct * 80; 
-                    box.style.transform = `translate3d(-50%, ${y}px, 0) scale(${scale})`;
-                    busy = false;
-                });
-                busy = true;
+                reader.onload = function(e) { photoData = e.target.result; }
+                reader.readAsDataURL(input.files[0]);
             }
-        }, { passive: true });
-
-        // --- FX SYSTEM ---
-        function runFX() {
-            const container = document.getElementById('fxArea');
-            const smokeColors = ['rgba(255, 140, 0, 0.85)', 'rgba(240, 240, 240, 0.8)', 'rgba(0, 150, 0, 0.85)'];
-            const flowers = ['🌸', '🏵️', '🌺', '🌼'];
-            let tick = 0;
-            setInterval(() => {
-                tick++;
-                if(container.childElementCount > 22) return;
-                const s = document.createElement('div');
-                s.className = 'smoke-p';
-                const size = Math.random() * 100 + 100;
-                s.style.width = size + 'px'; s.style.height = size + 'px';
-                s.style.background = smokeColors[tick % 3];
-                s.style.left = Math.random() * 90 + '%';
-                s.style.setProperty('--x', (Math.random()-0.5)*180 + 'px');
-                container.appendChild(s);
-                setTimeout(() => s.remove(), 5800);
-                if(tick % 2 === 0) {
-                    const f = document.createElement('div');
-                    f.className = 'flower';
-                    f.innerText = flowers[Math.floor(Math.random() * flowers.length)];
-                    f.style.left = Math.random() * 95 + '%';
-                    const dur = Math.random() * 2 + 4;
-                    f.style.animationDuration = dur + 's';
-                    container.appendChild(f);
-                    setTimeout(() => f.remove(), dur * 1000);
-                }
-            }, 500);
         }
 
-        // --- JETS ---
-        function flyJets() {
-            const area = document.getElementById('jetArea');
-            const colors = ['#FF9933', '#FFF', '#138808'];
-            colors.forEach((col, i) => {
-                setTimeout(() => {
-                    const d = document.createElement('div');
-                    d.className = 'jet-wrap';
-                    d.innerHTML = `<div class="jet"></div><div class="trail" style="background:${col};"></div>`;
-                    d.style.left = '-60px'; d.style.top = (25 + i*12) + '%';
-                    const anim = d.animate([ { transform: 'translate3d(0,0,0) scale(0.7)' }, { transform: 'translate3d(120vw, -50vh, 0) scale(1.6)' } ], { duration: 3800, easing: 'linear' });
-                    area.appendChild(d);
-                    anim.onfinish = () => d.remove();
-                }, i * 450);
+        // --- Calculation ---
+        function calcRow(input) {
+            const row = input.parentElement.parentElement;
+            const th = parseFloat(row.querySelector('.th').value) || 0;
+            const pr = parseFloat(row.querySelector('.pr').value) || 0;
+            row.querySelector('.tot').value = th + pr;
+            calcTotal();
+        }
+
+        function calcTotal() {
+            let total = 0, count = 0;
+            document.querySelectorAll('#inputTable tbody tr').forEach(row => {
+                total += parseFloat(row.querySelector('.tot').value) || 0;
+                count++;
             });
+            const percent = (total / (count * 100)) * 100;
+            let grade = 'F';
+            if (percent >= 80) grade = 'A+';
+            else if (percent >= 70) grade = 'A';
+            else if (percent >= 60) grade = 'B';
+            else if (percent >= 50) grade = 'C';
+            else if (percent >= 40) grade = 'D';
+
+            document.getElementById('grandTotal').innerText = total;
+            document.getElementById('percentage').innerText = percent.toFixed(2);
+            document.getElementById('grade').innerText = grade;
+            return { total, percent: percent.toFixed(2), grade };
+        }
+
+        // --- CORE PROCESS ---
+        async function processData() {
+            const sName = document.getElementById('sName').value;
+            if(!sName) { alert("Please enter Student Name!"); return; }
+
+            // 1. Generate Ref No
+            const refNo = `TIK-JNYCTSD-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+            const stats = calcTotal();
+
+            // 2. Gather Data
+            const marks = [];
+            document.querySelectorAll('#inputTable tbody tr').forEach(row => {
+                marks.push({
+                    sub: row.querySelector('input[type="text"]').value,
+                    th: row.querySelector('.th').value || 0,
+                    pr: row.querySelector('.pr').value || 0,
+                    tot: row.querySelector('.tot').value || 0
+                });
+            });
+
+            const student = {
+                refNo, sName, 
+                fName: document.getElementById('fName').value,
+                regNo: document.getElementById('regNo').value,
+                rollNo: document.getElementById('rollNo').value,
+                course: document.getElementById('course').value,
+                session: document.getElementById('session').value,
+                stats, marks, photoData
+            };
+
+            // 3. Save to LocalStorage
+            let db = JSON.parse(localStorage.getItem('JNYCTSD_DATA') || "[]");
+            db.push(student);
+            localStorage.setItem('JNYCTSD_DATA', JSON.stringify(db));
+
+            // 4. Check what to generate
+            const doCert = document.getElementById('genCert').checked;
+            const doMark = document.getElementById('genMark').checked;
+
+            if(!doCert && !doMark) { alert("Please select at least one document to generate."); return; }
+
+            // 5. Fill Templates
+            fillCertificate(student);
+            fillMarksheet(student);
+
+            // 6. Generate PDFs
+            const opt = {
+                margin: 0,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            if(doCert) {
+                document.getElementById('pdf-cert').style.display = 'block';
+                opt.filename = `Certificate_${sName}.pdf`;
+                await html2pdf().set(opt).from(document.getElementById('pdf-cert')).save();
+                document.getElementById('pdf-cert').style.display = 'none';
+            }
+
+            if(doMark) {
+                // Wait a bit if both are selected so browser doesn't freeze
+                if(doCert) await new Promise(r => setTimeout(r, 1000)); 
+                
+                document.getElementById('pdf-mark').style.display = 'block';
+                opt.filename = `Marksheet_${sName}.pdf`;
+                await html2pdf().set(opt).from(document.getElementById('pdf-mark')).save();
+                document.getElementById('pdf-mark').style.display = 'none';
+            }
+
+            alert("Documents Generated & Data Saved!");
+        }
+
+        // Helper: Fill Certificate
+        function fillCertificate(s) {
+            document.getElementById('c-ref').innerText = s.refNo;
+            document.getElementById('c-name').innerText = s.sName;
+            document.getElementById('c-fname').innerText = s.fName;
+            document.getElementById('c-course').innerText = s.course;
+            document.getElementById('c-session').innerText = s.session;
+            document.getElementById('c-grade').innerText = s.stats.grade;
+            document.getElementById('c-date').innerText = "Date: " + new Date().toLocaleDateString();
+            
+            if(s.photoData) {
+                document.getElementById('c-photo').src = s.photoData;
+                document.getElementById('c-photo').style.display = 'block';
+                document.getElementById('c-photo-placeholder').style.display = 'none';
+            }
+        }
+
+        // Helper: Fill Marksheet
+        function fillMarksheet(s) {
+            document.getElementById('m-name').innerText = s.sName;
+            document.getElementById('m-ref').innerText = s.refNo;
+            document.getElementById('m-fname').innerText = s.fName;
+            document.getElementById('m-reg').innerText = s.regNo;
+            document.getElementById('m-roll').innerText = s.rollNo;
+            document.getElementById('m-course').innerText = s.course;
+            document.getElementById('m-session').innerText = s.session;
+            
+            const tbody = document.getElementById('m-tbody');
+            tbody.innerHTML = '';
+            s.marks.forEach(m => {
+                tbody.innerHTML += `<tr><td class="subject-col">${m.sub}</td><td>${m.th}</td><td>${m.pr}</td><td><b>${m.tot}</b></td></tr>`;
+            });
+
+            document.getElementById('m-total').innerText = s.stats.total;
+            document.getElementById('m-percent').innerText = s.stats.percent;
+            document.getElementById('m-grade').innerText = s.stats.grade;
+            document.getElementById('m-result').innerText = s.stats.grade === 'F' ? 'FAIL' : 'PASS';
+            document.getElementById('m-result').style.color = s.stats.grade === 'F' ? 'red' : 'green';
+        }
+
+        // --- Verification Logic ---
+        function verifyStudent() {
+            const query = document.getElementById('searchRef').value;
+            const db = JSON.parse(localStorage.getItem('JNYCTSD_DATA') || "[]");
+            const found = db.find(s => s.refNo === query);
+            const resDiv = document.getElementById('verifyResult');
+            
+            resDiv.style.display = 'block';
+            if(found) {
+                resDiv.innerHTML = `
+                    <h3 style="color:green; margin-top:0;">✔ Verified Student</h3>
+                    <p><b>Name:</b> ${found.sName}</p>
+                    <p><b>Course:</b> ${found.course}</p>
+                    <p><b>Result:</b> ${found.stats.grade} (${found.stats.percent}%)</p>
+                `;
+            } else {
+                resDiv.innerHTML = `<h3 style="color:red; margin-top:0;">✘ No Record Found</h3><p>Please check the Reference Number.</p>`;
+            }
         }
     </script>
 </body>
