@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIKARKHANJI JNYCTSD - Professional System</title>
+    <title>TIKARKHANJI JNYCTSD - Admin Portal</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        /* --- GLOBAL & UI STYLES --- */
+        /* --- GLOBAL STYLES --- */
         :root {
             --primary: #1a237e; /* Deep Blue */
             --gold: #d4af37;    /* Gold */
@@ -17,55 +17,58 @@
         
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
         
-        /* Navigation */
-        .navbar { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* Navbar */
+        .navbar { background: var(--primary); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
         .nav-brand { font-size: 1.4rem; font-weight: bold; border-left: 4px solid var(--gold); padding-left: 10px; }
         .nav-menu button { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: white; padding: 8px 15px; margin-left: 5px; cursor: pointer; border-radius: 4px; transition: 0.3s; }
         .nav-menu button:hover { background: var(--gold); color: var(--primary); font-weight: bold; }
 
-        /* Container */
+        /* Layout */
         .container { max-width: 1100px; margin: 20px auto; padding: 15px; }
         .section { display: none; animation: fadeIn 0.4s; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Card Styles */
+        /* Cards */
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border-top: 4px solid var(--primary); }
         .card h2 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
 
-        /* Form Grid */
+        /* Forms */
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
-        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        
-        /* Selection Box (New Feature) */
-        .selection-box {
-            background: #e8eaf6; border: 1px solid var(--primary); padding: 15px; 
-            border-radius: 5px; text-align: center; margin: 20px 0;
-        }
-        .checkbox-group { display: inline-block; margin: 0 15px; font-weight: bold; cursor: pointer; }
-        .checkbox-group input { transform: scale(1.2); margin-right: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
 
         /* Marks Table */
         .marks-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .marks-table th { background: var(--primary); color: white; padding: 8px; font-size: 0.9rem; }
-        .marks-table td { border: 1px solid #ddd; padding: 5px; text-align: center; }
-        .marks-table input { width: 100%; border: none; text-align: center; outline: none; font-size: 1rem; }
+        .marks-table th { background: var(--primary); color: white; padding: 10px; font-size: 0.9rem; text-align: center; }
+        .marks-table td { border: 1px solid #ddd; padding: 5px; }
+        .marks-table input { width: 100%; border: 1px solid transparent; text-align: center; outline: none; font-size: 1rem; padding: 5px; box-sizing: border-box; }
+        .marks-table input:focus { border: 1px solid var(--primary); background: #f0f0ff; }
+        .marks-table input.tot { background: #eee; font-weight: bold; }
 
-        .btn-generate { background: #28a745; color: white; padding: 12px 30px; border: none; font-size: 1.1rem; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
-        .btn-generate:hover { background: #218838; transform: scale(1.02); }
+        /* Buttons */
+        .btn-generate { background: #28a745; color: white; padding: 12px 30px; border: none; font-size: 1.1rem; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; display: block; width: 100%; margin-top: 20px; }
+        .btn-generate:hover { background: #218838; transform: translateY(-2px); }
 
-        /* --- PDF TEMPLATES (A4 Size & Design) --- */
+        .btn-download { background: #d32f2f; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; display: inline-block; text-decoration: none; }
+        .btn-download:hover { background: #b71c1c; }
+
+        /* --- PREVIEW SECTION --- */
+        #preview-container { display: none; margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; }
+        .preview-wrapper { margin-bottom: 40px; text-align: center; }
+        .preview-scroll { overflow-x: auto; padding: 10px; background: #555; border-radius: 5px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        
+        /* A4 Page CSS */
         .a4-page {
             width: 210mm; min-height: 297mm; background: white; margin: 0 auto;
             position: relative; box-sizing: border-box; color: #000;
-            display: none; /* Hidden strictly */
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            text-align: left; /* Reset alignment */
         }
 
-        /* Certificate Design (Pure CSS for Offline Safety) */
+        /* --- CERTIFICATE DESIGN --- */
         .cert-container {
-            height: 100%; padding: 10mm;
-            /* Background Pattern using CSS to avoid Image Load Error */
+            height: 296mm; padding: 10mm; box-sizing: border-box;
             background-image: radial-gradient(#f3f3f3 15%, transparent 16%), radial-gradient(#f3f3f3 15%, transparent 16%);
             background-size: 30px 30px; background-position: 0 0, 15px 15px;
         }
@@ -74,29 +77,21 @@
             border-image: linear-gradient(to bottom right, var(--primary) 0%, var(--gold) 100%);
             border-image-slice: 1;
             height: 100%; padding: 30px; text-align: center; position: relative;
-            background: white; /* Clear background over pattern */
+            background: white;
+            box-sizing: border-box;
         }
-        
-        .inst-header h1 { color: var(--primary); font-size: 38px; text-transform: uppercase; margin: 0; letter-spacing: 2px; }
-        .govt-badge { background: var(--primary); color: var(--gold); padding: 5px 20px; border-radius: 20px; font-weight: bold; display: inline-block; margin: 10px 0; font-size: 14px; }
-        
-        .cert-title { font-family: serif; color: var(--gold); font-size: 42px; margin: 30px 0; text-shadow: 1px 1px 0 #000; }
-        
-        .student-name { font-family: 'Times New Roman', serif; font-size: 32px; color: var(--primary); font-weight: bold; border-bottom: 2px dotted #999; display: inline-block; min-width: 300px; margin: 10px 0; }
-        
-        .cert-footer { display: flex; justify-content: space-between; margin-top: 80px; padding: 0 20px; }
-        .sig-box { text-align: center; width: 200px; border-top: 1px solid #333; padding-top: 5px; font-weight: bold; }
+        .cert-title { font-family: serif; color: var(--gold); font-size: 42px; margin: 20px 0; text-shadow: 1px 1px 0 #000; }
+        .student-name { font-family: 'Times New Roman', serif; font-size: 32px; color: var(--primary); font-weight: bold; border-bottom: 2px dotted #999; display: inline-block; min-width: 300px; margin: 5px 0; }
 
-        /* Marksheet Design */
-        .mark-container { padding: 15mm; height: 100%; box-sizing: border-box; }
-        .mark-border { border: 3px double var(--primary); height: 100%; padding: 20px; position: relative; }
-        
+        /* --- MARKSHEET DESIGN --- */
+        .mark-container { padding: 15mm; height: 296mm; box-sizing: border-box; }
+        .mark-border { border: 3px double var(--primary); height: 100%; padding: 20px; position: relative; box-sizing: border-box; }
         .result-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .result-table th { border: 1px solid #000; padding: 8px; background: #eee; }
         .result-table td { border: 1px solid #000; padding: 8px; text-align: center; }
         .subject-col { text-align: left !important; padding-left: 10px !important; }
 
-        /* Verification Page */
+        /* Verification */
         .verify-box { max-width: 500px; margin: 50px auto; text-align: center; }
         .result-card { text-align: left; margin-top: 20px; padding: 15px; border: 1px solid #ddd; display: none; background: #fff; }
 
@@ -123,9 +118,9 @@
                     <div class="form-group"><label>Father/Guardian</label><input type="text" id="fName" placeholder="Father Name"></div>
                     <div class="form-group"><label>Reg. Number</label><input type="text" id="regNo"></div>
                     <div class="form-group"><label>Roll Number</label><input type="text" id="rollNo"></div>
-                    <div class="form-group"><label>Course</label><input type="text" id="course" value="Diploma in Computer Application"></div>
+                    <div class="form-group"><label>Course Name</label><input type="text" id="course" value="Diploma in Computer Application"></div>
                     <div class="form-group"><label>Session</label><input type="text" id="session" value="2024-2025"></div>
-                    <div class="form-group"><label>Photo (Optional)</label><input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(this)"></div>
+                    <div class="form-group"><label>Student Photo</label><input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(this)"></div>
                 </div>
             </div>
 
@@ -137,7 +132,7 @@
                             <th style="width: 40%">Subject Name</th>
                             <th>Theory (70)</th>
                             <th>Practical (30)</th>
-                            <th>Total</th>
+                            <th>Total (100)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -148,31 +143,131 @@
                         <tr><td><input type="text" value="Soft Skills"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
                     </tbody>
                 </table>
-                <div style="text-align: right; margin-top: 10px; font-weight: bold;">
-                    Total: <span id="grandTotal">0</span> | Percentage: <span id="percentage">0</span>% | Grade: <span id="grade">F</span>
+                <div style="background: #e8eaf6; padding: 10px; margin-top: 15px; border-radius: 4px; text-align: right; font-weight: bold; color: var(--primary);">
+                    Grand Total: <span id="grandTotal">0</span> / 500 &nbsp;|&nbsp; 
+                    Percentage: <span id="percentage">0</span>% &nbsp;|&nbsp; 
+                    Grade: <span id="grade">F</span>
                 </div>
+                
+                <button class="btn-generate" onclick="generatePreview()">GENERATE & PREVIEW</button>
             </div>
 
-            <div class="card" style="text-align: center;">
-                <h3>Document Generation Options</h3>
-                <div class="selection-box">
-                    <label class="checkbox-group">
-                        <input type="checkbox" id="genCert" checked> Generate Certificate
-                    </label>
-                    <label class="checkbox-group">
-                        <input type="checkbox" id="genMark" checked> Generate Marksheet
-                    </label>
+            <div id="preview-container">
+                <h2 style="text-align:center; color: #333;">Generated Documents Preview</h2>
+                
+                <div class="preview-wrapper">
+                    <h3>Certificate</h3>
+                    <div class="preview-scroll">
+                        <div id="pdf-cert" class="a4-page">
+                            <div class="cert-container">
+                                <div class="cert-border">
+                                    <div style="position: absolute; top: 40px; right: 40px; width: 100px; height: 120px; border: 1px solid #ddd; padding: 2px;">
+                                        <img id="c-photo" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                        <div id="c-photo-placeholder" style="width: 100%; height: 100%; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #777;">PHOTO</div>
+                                    </div>
+
+                                    <div style="margin-top: 20px;">
+                                        <h1 style="color: var(--primary); font-size: 38px; text-transform: uppercase; margin: 0; letter-spacing: 2px;">Tikarkhanji JNYCTSD</h1>
+                                        <p style="margin: 5px 0; color: #555;">Tikarkhanji, Katwa, Purba Bardhaman</p>
+                                        <div style="background: var(--primary); color: var(--gold); padding: 5px 20px; border-radius: 20px; font-weight: bold; display: inline-block; margin: 10px 0; font-size: 14px;">ভারত সরকার অনুমোদিত</div>
+                                    </div>
+
+                                    <h2 class="cert-title">Certificate of Completion</h2>
+
+                                    <div style="font-size: 18px; line-height: 1.8; font-family: 'Times New Roman', serif; margin-top: 30px;">
+                                        <p>Ref No: <b id="c-ref"></b></p>
+                                        <p>This is to certify that</p>
+                                        <div class="student-name" id="c-name">STUDENT NAME</div>
+                                        <p>Son/Daughter of <b id="c-fname">Father Name</b></p>
+                                        <p>has successfully completed the course</p>
+                                        <h3 id="c-course" style="color: var(--primary); font-size: 26px; margin: 10px 0;">COURSE NAME</h3>
+                                        <p>Session: <b id="c-session">2024-25</b></p>
+                                        <p>He/She has secured Grade: <b id="c-grade" style="font-size: 22px;">A</b></p>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; margin-top: 60px; padding: 0 40px;">
+                                        <div style="text-align: center; border-top: 1px solid #333; width: 200px; padding-top: 5px;">
+                                            <p id="c-date" style="margin:0; font-size:14px;">Date: </p>
+                                            <strong>Issue Date</strong>
+                                        </div>
+                                        <div style="width: 100px; height: 100px; border: 3px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: bold; transform: rotate(-15deg); opacity: 0.8;">
+                                            OFFICIAL<br>SEAL
+                                        </div>
+                                        <div style="text-align: center; border-top: 1px solid #333; width: 200px; padding-top: 30px;">
+                                            <strong>Director Signature</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-download" onclick="downloadPDF('pdf-cert', 'Certificate')">📥 Download Certificate PDF</button>
                 </div>
-                <button class="btn-generate" onclick="processData()">SAVE DATA & GENERATE PDF</button>
+
+                <div class="preview-wrapper">
+                    <h3>Marksheet</h3>
+                    <div class="preview-scroll">
+                        <div id="pdf-mark" class="a4-page">
+                            <div class="mark-container">
+                                <div class="mark-border">
+                                    <div style="text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
+                                        <h1 style="margin:0; color: var(--primary); text-transform: uppercase;">TIKARKHANJI JNYCTSD</h1>
+                                        <p style="margin: 5px;">Tikarkhanji, Katwa, Purba Bardhaman</p>
+                                        <span style="background: var(--primary); color: white; padding: 2px 10px; font-size: 12px;">ভারত সরকার অনুমোদিত</span>
+                                        <h3 style="margin-top: 15px; text-decoration: underline;">STATEMENT OF MARKS</h3>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; font-size: 15px; line-height: 1.5;">
+                                        <div><strong>Name:</strong> <span id="m-name"></span></div>
+                                        <div><strong>Ref No:</strong> <span id="m-ref"></span></div>
+                                        <div><strong>Father Name:</strong> <span id="m-fname"></span></div>
+                                        <div><strong>Reg No:</strong> <span id="m-reg"></span></div>
+                                        <div><strong>Course:</strong> <span id="m-course"></span></div>
+                                        <div><strong>Roll No:</strong> <span id="m-roll"></span></div>
+                                        <div><strong>Session:</strong> <span id="m-session"></span></div>
+                                    </div>
+
+                                    <table class="result-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="subject-col">Subject Name</th>
+                                                <th>Theory (70)</th>
+                                                <th>Practical (30)</th>
+                                                <th>Total (100)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="m-tbody">
+                                            </tbody>
+                                    </table>
+
+                                    <div style="margin-top: 30px; border: 2px solid #333; padding: 15px; display: flex; justify-content: space-around; background: #f0f0f0; font-weight: bold; font-size: 16px;">
+                                        <div>Grand Total: <span id="m-total"></span> / 500</div>
+                                        <div>Percentage: <span id="m-percent"></span>%</div>
+                                        <div>Grade: <span id="m-grade"></span></div>
+                                        <div>Result: <span id="m-result"></span></div>
+                                    </div>
+
+                                    <div style="position: absolute; bottom: 60px; left: 0; width: 100%; padding: 0 50px; box-sizing: border-box; display: flex; justify-content: space-between;">
+                                        <div style="text-align: center; width: 200px; border-top: 1px solid #000; padding-top: 5px;"><strong>Verified By</strong></div>
+                                        <div style="text-align: center; width: 200px; border-top: 1px solid #000; padding-top: 5px;"><strong>Controller of Examinations</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-download" onclick="downloadPDF('pdf-mark', 'Marksheet')">📥 Download Marksheet PDF</button>
+                </div>
+
             </div>
         </div>
 
         <div id="verify-section" class="section">
             <div class="card verify-box">
                 <h2>Check Student Status</h2>
-                <input type="text" id="searchRef" placeholder="Enter Ref No (e.g., TIK-JNYCTSD-2026-12345)" style="padding: 10px; width: 80%; margin-bottom: 10px;">
+                <p>Enter the Student Reference Number found on the certificate.</p>
+                <input type="text" id="searchRef" placeholder="Ref No (e.g., TIK-JNYCTSD-2026-XXXXX)" style="padding: 12px; width: 80%; margin-bottom: 15px; font-size: 1rem;">
                 <br>
-                <button class="btn-generate" onclick="verifyStudent()">SEARCH</button>
+                <button class="btn-generate" onclick="verifyStudent()" style="width: auto; padding: 10px 40px; display: inline-block;">SEARCH</button>
 
                 <div id="verifyResult" class="result-card"></div>
             </div>
@@ -180,119 +275,35 @@
 
     </div>
 
-    <div id="pdf-cert" class="a4-page">
-        <div class="cert-container">
-            <div class="cert-border">
-                <div style="position: absolute; top: 40px; right: 40px; width: 100px; height: 120px; border: 1px solid #ddd; padding: 2px;">
-                    <img id="c-photo" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                    <div id="c-photo-placeholder" style="width: 100%; height: 100%; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #777;">PHOTO</div>
-                </div>
-
-                <div class="inst-header">
-                    <h1>Tikarkhanji JNYCTSD</h1>
-                    <p style="margin: 5px 0; color: #555;">Tikarkhanji, Katwa, Purba Bardhaman</p>
-                    <div class="govt-badge">ভারত সরকার অনুমোদিত</div>
-                </div>
-
-                <h2 class="cert-title">Certificate of Completion</h2>
-
-                <div style="font-size: 18px; line-height: 1.6; font-family: 'Times New Roman', serif; margin-top: 40px;">
-                    <p>Ref No: <b id="c-ref"></b></p>
-                    <p>This is to certify that</p>
-                    <div class="student-name" id="c-name">STUDENT NAME</div>
-                    <p>Son/Daughter of <b id="c-fname">Father Name</b></p>
-                    <p>has successfully completed the course</p>
-                    <h3 id="c-course" style="color: var(--primary); font-size: 24px;">COURSE NAME</h3>
-                    <p>Session: <b id="c-session">2024-25</b> &nbsp;|&nbsp; Grade: <b id="c-grade">A</b></p>
-                </div>
-
-                <div class="cert-footer">
-                    <div class="sig-box">
-                        <p id="c-date">Date: </p>
-                        Issue Date
-                    </div>
-                    <div style="width: 90px; height: 90px; border: 3px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: bold; transform: rotate(-15deg);">
-                        OFFICIAL<br>SEAL
-                    </div>
-                    <div class="sig-box">
-                        <br>
-                        Director Signature
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="pdf-mark" class="a4-page">
-        <div class="mark-container">
-            <div class="mark-border">
-                <div style="text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
-                    <h1 style="margin:0; color: var(--primary);">TIKARKHANJI JNYCTSD</h1>
-                    <p style="margin: 5px;">Tikarkhanji, Katwa, Purba Bardhaman</p>
-                    <span style="background: var(--primary); color: white; padding: 2px 10px; font-size: 12px;">ভারত সরকার অনুমোদিত</span>
-                    <h3 style="margin-top: 15px; text-decoration: underline;">STATEMENT OF MARKS</h3>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; font-size: 14px;">
-                    <div><strong>Name:</strong> <span id="m-name"></span></div>
-                    <div><strong>Ref No:</strong> <span id="m-ref"></span></div>
-                    <div><strong>Father Name:</strong> <span id="m-fname"></span></div>
-                    <div><strong>Reg No:</strong> <span id="m-reg"></span></div>
-                    <div><strong>Course:</strong> <span id="m-course"></span></div>
-                    <div><strong>Roll No:</strong> <span id="m-roll"></span></div>
-                    <div><strong>Session:</strong> <span id="m-session"></span></div>
-                </div>
-
-                <table class="result-table">
-                    <thead>
-                        <tr>
-                            <th class="subject-col">Subject Name</th>
-                            <th>Theory (70)</th>
-                            <th>Practical (30)</th>
-                            <th>Total (100)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="m-tbody">
-                        </tbody>
-                </table>
-
-                <div style="margin-top: 20px; border: 1px solid #000; padding: 10px; display: flex; justify-content: space-around; background: #f9f9f9; font-weight: bold;">
-                    <div>Grand Total: <span id="m-total"></span></div>
-                    <div>Percentage: <span id="m-percent"></span>%</div>
-                    <div>Grade: <span id="m-grade"></span></div>
-                    <div>Result: <span id="m-result"></span></div>
-                </div>
-
-                <div style="position: absolute; bottom: 50px; left: 0; width: 100%; padding: 0 40px; box-sizing: border-box; display: flex; justify-content: space-between;">
-                    <div class="sig-box">Verified By</div>
-                    <div class="sig-box">Controller of Examinations</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // --- Navigation ---
+        // --- Navigation Logic ---
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(id + '-section').classList.add('active');
         }
 
-        // --- Photo Handling ---
+        // --- Photo Upload Logic ---
         let photoData = null;
         function previewPhoto(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) { photoData = e.target.result; }
+                reader.onload = function(e) { 
+                    photoData = e.target.result; 
+                }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // --- Calculation ---
+        // --- Marks Calculation ---
         function calcRow(input) {
             const row = input.parentElement.parentElement;
             const th = parseFloat(row.querySelector('.th').value) || 0;
             const pr = parseFloat(row.querySelector('.pr').value) || 0;
+            
+            // Limit checks
+            if(th > 70) { alert("Theory marks cannot be more than 70"); row.querySelector('.th').value = 70; return calcRow(row.querySelector('.th')); }
+            if(pr > 30) { alert("Practical marks cannot be more than 30"); row.querySelector('.pr').value = 30; return calcRow(row.querySelector('.pr')); }
+
             row.querySelector('.tot').value = th + pr;
             calcTotal();
         }
@@ -303,8 +314,11 @@
                 total += parseFloat(row.querySelector('.tot').value) || 0;
                 count++;
             });
-            const percent = (total / (count * 100)) * 100;
+            
+            const maxMarks = count * 100;
+            const percent = (total / maxMarks) * 100;
             let grade = 'F';
+
             if (percent >= 80) grade = 'A+';
             else if (percent >= 70) grade = 'A';
             else if (percent >= 60) grade = 'B';
@@ -314,29 +328,19 @@
             document.getElementById('grandTotal').innerText = total;
             document.getElementById('percentage').innerText = percent.toFixed(2);
             document.getElementById('grade').innerText = grade;
+
             return { total, percent: percent.toFixed(2), grade };
         }
 
-        // --- CORE PROCESS ---
-        async function processData() {
+        // --- GENERATE PREVIEW ---
+        function generatePreview() {
             const sName = document.getElementById('sName').value;
             if(!sName) { alert("Please enter Student Name!"); return; }
 
-            // 1. Generate Ref No
-            const refNo = `TIK-JNYCTSD-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+            // 1. Calculations & Data
             const stats = calcTotal();
-
-            // 2. Gather Data
-            const marks = [];
-            document.querySelectorAll('#inputTable tbody tr').forEach(row => {
-                marks.push({
-                    sub: row.querySelector('input[type="text"]').value,
-                    th: row.querySelector('.th').value || 0,
-                    pr: row.querySelector('.pr').value || 0,
-                    tot: row.querySelector('.tot').value || 0
-                });
-            });
-
+            const refNo = `TIK-JNYCTSD-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+            
             const student = {
                 refNo, sName, 
                 fName: document.getElementById('fName').value,
@@ -344,53 +348,39 @@
                 rollNo: document.getElementById('rollNo').value,
                 course: document.getElementById('course').value,
                 session: document.getElementById('session').value,
-                stats, marks, photoData
+                stats, 
+                marks: [],
+                photoData
             };
 
-            // 3. Save to LocalStorage
+            // Collect Marks
+            document.querySelectorAll('#inputTable tbody tr').forEach(row => {
+                student.marks.push({
+                    sub: row.querySelector('input[type="text"]').value,
+                    th: row.querySelector('.th').value || 0,
+                    pr: row.querySelector('.pr').value || 0,
+                    tot: row.querySelector('.tot').value || 0
+                });
+            });
+
+            // 2. Save Data to Local Storage (Simulated Database)
             let db = JSON.parse(localStorage.getItem('JNYCTSD_DATA') || "[]");
             db.push(student);
             localStorage.setItem('JNYCTSD_DATA', JSON.stringify(db));
 
-            // 4. Check what to generate
-            const doCert = document.getElementById('genCert').checked;
-            const doMark = document.getElementById('genMark').checked;
-
-            if(!doCert && !doMark) { alert("Please select at least one document to generate."); return; }
-
-            // 5. Fill Templates
+            // 3. Fill Templates
             fillCertificate(student);
             fillMarksheet(student);
 
-            // 6. Generate PDFs
-            const opt = {
-                margin: 0,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            if(doCert) {
-                document.getElementById('pdf-cert').style.display = 'block';
-                opt.filename = `Certificate_${sName}.pdf`;
-                await html2pdf().set(opt).from(document.getElementById('pdf-cert')).save();
-                document.getElementById('pdf-cert').style.display = 'none';
-            }
-
-            if(doMark) {
-                // Wait a bit if both are selected so browser doesn't freeze
-                if(doCert) await new Promise(r => setTimeout(r, 1000)); 
-                
-                document.getElementById('pdf-mark').style.display = 'block';
-                opt.filename = `Marksheet_${sName}.pdf`;
-                await html2pdf().set(opt).from(document.getElementById('pdf-mark')).save();
-                document.getElementById('pdf-mark').style.display = 'none';
-            }
-
-            alert("Documents Generated & Data Saved!");
+            // 4. Show Preview
+            document.getElementById('preview-container').style.display = 'block';
+            
+            // Scroll to preview
+            document.getElementById('preview-container').scrollIntoView({ behavior: 'smooth' });
+            
+            alert("Data Saved! Review the documents below and download.");
         }
 
-        // Helper: Fill Certificate
         function fillCertificate(s) {
             document.getElementById('c-ref').innerText = s.refNo;
             document.getElementById('c-name').innerText = s.sName;
@@ -407,7 +397,6 @@
             }
         }
 
-        // Helper: Fill Marksheet
         function fillMarksheet(s) {
             document.getElementById('m-name').innerText = s.sName;
             document.getElementById('m-ref').innerText = s.refNo;
@@ -420,19 +409,51 @@
             const tbody = document.getElementById('m-tbody');
             tbody.innerHTML = '';
             s.marks.forEach(m => {
-                tbody.innerHTML += `<tr><td class="subject-col">${m.sub}</td><td>${m.th}</td><td>${m.pr}</td><td><b>${m.tot}</b></td></tr>`;
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="subject-col">${m.sub}</td>
+                        <td>${m.th}</td>
+                        <td>${m.pr}</td>
+                        <td><b>${m.tot}</b></td>
+                    </tr>`;
             });
 
             document.getElementById('m-total').innerText = s.stats.total;
             document.getElementById('m-percent').innerText = s.stats.percent;
             document.getElementById('m-grade').innerText = s.stats.grade;
-            document.getElementById('m-result').innerText = s.stats.grade === 'F' ? 'FAIL' : 'PASS';
-            document.getElementById('m-result').style.color = s.stats.grade === 'F' ? 'red' : 'green';
+            
+            const resultStatus = s.stats.grade === 'F' ? 'FAIL' : 'PASS';
+            const resultColor = s.stats.grade === 'F' ? 'red' : 'green';
+            document.getElementById('m-result').innerText = resultStatus;
+            document.getElementById('m-result').style.color = resultColor;
         }
 
-        // --- Verification Logic ---
+        // --- DOWNLOAD FUNCTION ---
+        function downloadPDF(elementId, nameType) {
+            const element = document.getElementById(elementId);
+            const sName = document.getElementById('sName').value || 'Student';
+            
+            const opt = {
+                margin: 0,
+                filename: `${nameType}_${sName}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Temporary visual tweak for clean PDF
+            element.style.boxShadow = 'none';
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.boxShadow = '0 0 15px rgba(0,0,0,0.3)'; // restore shadow
+            });
+        }
+
+        // --- VERIFICATION SYSTEM ---
         function verifyStudent() {
-            const query = document.getElementById('searchRef').value;
+            const query = document.getElementById('searchRef').value.trim();
+            if(!query) return;
+
             const db = JSON.parse(localStorage.getItem('JNYCTSD_DATA') || "[]");
             const found = db.find(s => s.refNo === query);
             const resDiv = document.getElementById('verifyResult');
@@ -440,13 +461,22 @@
             resDiv.style.display = 'block';
             if(found) {
                 resDiv.innerHTML = `
-                    <h3 style="color:green; margin-top:0;">✔ Verified Student</h3>
-                    <p><b>Name:</b> ${found.sName}</p>
-                    <p><b>Course:</b> ${found.course}</p>
-                    <p><b>Result:</b> ${found.stats.grade} (${found.stats.percent}%)</p>
+                    <div style="border-left: 5px solid green; padding-left: 10px;">
+                        <h3 style="color:green; margin-top:0;">✔ Verified Student Record</h3>
+                        <p><b>Name:</b> ${found.sName}</p>
+                        <p><b>Father Name:</b> ${found.fName}</p>
+                        <p><b>Course:</b> ${found.course}</p>
+                        <p><b>Session:</b> ${found.session}</p>
+                        <p><b>Final Grade:</b> ${found.stats.grade} (${found.stats.percent}%)</p>
+                    </div>
                 `;
             } else {
-                resDiv.innerHTML = `<h3 style="color:red; margin-top:0;">✘ No Record Found</h3><p>Please check the Reference Number.</p>`;
+                resDiv.innerHTML = `
+                    <div style="border-left: 5px solid red; padding-left: 10px;">
+                        <h3 style="color:red; margin-top:0;">✘ No Record Found</h3>
+                        <p>The Reference Number <b>${query}</b> does not exist in our database.</p>
+                    </div>
+                `;
             }
         }
     </script>
