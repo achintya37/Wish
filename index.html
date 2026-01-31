@@ -3,482 +3,670 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIKARKHANJI JNYCTSD - Admin Portal</title>
+    <title>JNYCTSD Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        /* --- GLOBAL STYLES --- */
         :root {
-            --primary: #1a237e; /* Deep Blue */
-            --gold: #d4af37;    /* Gold */
-            --bg: #f4f6f8;
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --bg: #f3f4f6;
+            --text: #1f2937;
+            --success: #10b981;
+            --danger: #ef4444;
+            --card: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
-        
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
-        
-        /* Navbar */
-        .navbar { background: var(--primary); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
-        .nav-brand { font-size: 1.4rem; font-weight: bold; border-left: 4px solid var(--gold); padding-left: 10px; }
-        .nav-menu button { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: white; padding: 8px 15px; margin-left: 5px; cursor: pointer; border-radius: 4px; transition: 0.3s; }
-        .nav-menu button:hover { background: var(--gold); color: var(--primary); font-weight: bold; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        /* Layout */
-        .container { max-width: 1100px; margin: 20px auto; padding: 15px; }
-        .section { display: none; animation: fadeIn 0.4s; }
+        /* Login Screen */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .login-box {
+            background: white; padding: 2rem; border-radius: 1rem; text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); width: 90%; max-width: 400px;
+        }
+        .google-btn {
+            background: #fff; border: 1px solid #ddd; padding: 10px 20px;
+            border-radius: 5px; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; gap: 10px; width: 100%; margin-top: 20px;
+            font-weight: 600; transition: 0.2s;
+        }
+        .google-btn:hover { background: #f9fafb; }
+
+        /* Main App Layout */
+        #app { display: none; height: 100%; display: flex; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px; background: white; border-right: 1px solid #e5e7eb;
+            display: flex; flex-direction: column; padding: 1rem;
+        }
+        .brand { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 2rem; display: flex; align-items: center; gap: 10px; }
+        .nav-item {
+            padding: 12px; border-radius: 8px; cursor: pointer; color: #4b5563;
+            margin-bottom: 5px; display: flex; align-items: center; gap: 10px; transition: 0.2s;
+        }
+        .nav-item:hover, .nav-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
+        
+        /* Main Content */
+        .main { flex: 1; padding: 20px; overflow-y: auto; position: relative; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section { display: none; animation: fadeIn 0.3s ease; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Cards */
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border-top: 4px solid var(--primary); }
-        .card h2 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        /* Cards & Inputs */
+        .content-card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        .input-box { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; transition: 0.2s; }
+        .input-box:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+        .btn {
+            background: var(--primary); color: white; border: none; padding: 10px 20px;
+            border-radius: 6px; cursor: pointer; font-weight: 500; width: 100%; margin-top: 10px;
+        }
+        .btn:hover { background: var(--secondary); }
 
-        /* Forms */
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
-        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-
-        /* Marks Table */
-        .marks-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .marks-table th { background: var(--primary); color: white; padding: 10px; font-size: 0.9rem; text-align: center; }
-        .marks-table td { border: 1px solid #ddd; padding: 5px; }
-        .marks-table input { width: 100%; border: 1px solid transparent; text-align: center; outline: none; font-size: 1rem; padding: 5px; box-sizing: border-box; }
-        .marks-table input:focus { border: 1px solid var(--primary); background: #f0f0ff; }
-        .marks-table input.tot { background: #eee; font-weight: bold; }
-
-        /* Buttons */
-        .btn-generate { background: #28a745; color: white; padding: 12px 30px; border: none; font-size: 1.1rem; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; display: block; width: 100%; margin-top: 20px; }
-        .btn-generate:hover { background: #218838; transform: translateY(-2px); }
-
-        .btn-download { background: #d32f2f; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; display: inline-block; text-decoration: none; }
-        .btn-download:hover { background: #b71c1c; }
-
-        /* --- PREVIEW SECTION --- */
-        #preview-container { display: none; margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; }
-        .preview-wrapper { margin-bottom: 40px; text-align: center; }
-        .preview-scroll { overflow-x: auto; padding: 10px; background: #555; border-radius: 5px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; color: #6b7280; font-size: 0.85rem; border-bottom: 2px solid #f3f4f6; padding: 10px; }
+        td { padding: 15px 10px; border-bottom: 1px solid #f3f4f6; font-size: 0.95rem; vertical-align: middle; }
         
-        /* A4 Page CSS */
-        .a4-page {
-            width: 210mm; min-height: 297mm; background: white; margin: 0 auto;
-            position: relative; box-sizing: border-box; color: #000;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
-            text-align: left; /* Reset alignment */
+        /* Action Buttons */
+        .action-btn {
+            padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer;
+            margin-right: 5px; color: white; transition: 0.2s;
         }
+        .btn-pay { background: var(--success); }
+        .btn-wa { background: #25D366; }
+        .btn-edit { background: #f59e0b; }
+        .btn-drop { background: #6b7280; }
+        .btn-del { background: var(--danger); }
+        .btn-restore { background: var(--primary); }
 
-        /* --- CERTIFICATE DESIGN --- */
-        .cert-container {
-            height: 296mm; padding: 10mm; box-sizing: border-box;
-            background-image: radial-gradient(#f3f3f3 15%, transparent 16%), radial-gradient(#f3f3f3 15%, transparent 16%);
-            background-size: 30px 30px; background-position: 0 0, 15px 15px;
+        /* Toggle Buttons */
+        .view-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
+        .toggle-btn {
+            padding: 8px 16px; border: 1px solid #d1d5db; background: white;
+            border-radius: 20px; cursor: pointer; font-size: 0.9rem;
         }
-        .cert-border {
-            border: 15px solid transparent;
-            border-image: linear-gradient(to bottom right, var(--primary) 0%, var(--gold) 100%);
-            border-image-slice: 1;
-            height: 100%; padding: 30px; text-align: center; position: relative;
-            background: white;
-            box-sizing: border-box;
+        .toggle-btn.active { background: var(--text); color: white; border-color: var(--text); }
+
+        /* Modals */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;
         }
-        .cert-title { font-family: serif; color: var(--gold); font-size: 42px; margin: 20px 0; text-shadow: 1px 1px 0 #000; }
-        .student-name { font-family: 'Times New Roman', serif; font-size: 32px; color: var(--primary); font-weight: bold; border-bottom: 2px dotted #999; display: inline-block; min-width: 300px; margin: 5px 0; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; }
+        .close { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
 
-        /* --- MARKSHEET DESIGN --- */
-        .mark-container { padding: 15mm; height: 296mm; box-sizing: border-box; }
-        .mark-border { border: 3px double var(--primary); height: 100%; padding: 20px; position: relative; box-sizing: border-box; }
-        .result-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .result-table th { border: 1px solid #000; padding: 8px; background: #eee; }
-        .result-table td { border: 1px solid #000; padding: 8px; text-align: center; }
-        .subject-col { text-align: left !important; padding-left: 10px !important; }
-
-        /* Verification */
-        .verify-box { max-width: 500px; margin: 50px auto; text-align: center; }
-        .result-card { text-align: left; margin-top: 20px; padding: 15px; border: 1px solid #ddd; display: none; background: #fff; }
-
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            #app { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 1px solid #e5e7eb; border-right: none; }
+            .brand { display: none; }
+            .nav-item { flex: 0 0 auto; margin: 0; font-size: 0.9rem; padding: 8px 12px; }
+            .nav-item span { display: none; }
+            .nav-item i { margin: 0; font-size: 1.2rem; }
+            th, td { padding: 10px 5px; font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="nav-brand">TIKARKHANJI JNYCTSD</div>
-        <div class="nav-menu">
-            <button onclick="showSection('admin')">Data Entry</button>
-            <button onclick="showSection('verify')">Verification</button>
+    <div id="login-screen">
+        <div class="login-box">
+            <h2 style="color:var(--secondary); margin-bottom:10px;">TIKARKHANJI JNYCTSD</h2>
+            <p style="color:#6b7280; font-size:0.9rem;">Management Portal Access</p>
+            <button class="google-btn" onclick="googleLogin()">
+                <i class="fab fa-google"></i> Sign in with Google
+            </button>
         </div>
-    </nav>
-
-    <div class="container">
-
-        <div id="admin-section" class="section active">
-            
-            <div class="card">
-                <h2>Student Details</h2>
-                <div class="form-grid">
-                    <div class="form-group"><label>Student Name</label><input type="text" id="sName" placeholder="Full Name"></div>
-                    <div class="form-group"><label>Father/Guardian</label><input type="text" id="fName" placeholder="Father Name"></div>
-                    <div class="form-group"><label>Reg. Number</label><input type="text" id="regNo"></div>
-                    <div class="form-group"><label>Roll Number</label><input type="text" id="rollNo"></div>
-                    <div class="form-group"><label>Course Name</label><input type="text" id="course" value="Diploma in Computer Application"></div>
-                    <div class="form-group"><label>Session</label><input type="text" id="session" value="2024-2025"></div>
-                    <div class="form-group"><label>Student Photo</label><input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(this)"></div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>Marks Entry</h2>
-                <table class="marks-table" id="inputTable">
-                    <thead>
-                        <tr>
-                            <th style="width: 40%">Subject Name</th>
-                            <th>Theory (70)</th>
-                            <th>Practical (30)</th>
-                            <th>Total (100)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><input type="text" value="Computer Fundamental"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
-                        <tr><td><input type="text" value="Office Automation"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
-                        <tr><td><input type="text" value="Programming in C"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
-                        <tr><td><input type="text" value="Internet Technology"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
-                        <tr><td><input type="text" value="Soft Skills"></td><td><input type="number" class="th" oninput="calcRow(this)"></td><td><input type="number" class="pr" oninput="calcRow(this)"></td><td><input type="number" class="tot" readonly></td></tr>
-                    </tbody>
-                </table>
-                <div style="background: #e8eaf6; padding: 10px; margin-top: 15px; border-radius: 4px; text-align: right; font-weight: bold; color: var(--primary);">
-                    Grand Total: <span id="grandTotal">0</span> / 500 &nbsp;|&nbsp; 
-                    Percentage: <span id="percentage">0</span>% &nbsp;|&nbsp; 
-                    Grade: <span id="grade">F</span>
-                </div>
-                
-                <button class="btn-generate" onclick="generatePreview()">GENERATE & PREVIEW</button>
-            </div>
-
-            <div id="preview-container">
-                <h2 style="text-align:center; color: #333;">Generated Documents Preview</h2>
-                
-                <div class="preview-wrapper">
-                    <h3>Certificate</h3>
-                    <div class="preview-scroll">
-                        <div id="pdf-cert" class="a4-page">
-                            <div class="cert-container">
-                                <div class="cert-border">
-                                    <div style="position: absolute; top: 40px; right: 40px; width: 100px; height: 120px; border: 1px solid #ddd; padding: 2px;">
-                                        <img id="c-photo" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                                        <div id="c-photo-placeholder" style="width: 100%; height: 100%; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #777;">PHOTO</div>
-                                    </div>
-
-                                    <div style="margin-top: 20px;">
-                                        <h1 style="color: var(--primary); font-size: 38px; text-transform: uppercase; margin: 0; letter-spacing: 2px;">Tikarkhanji JNYCTSD</h1>
-                                        <p style="margin: 5px 0; color: #555;">Tikarkhanji, Katwa, Purba Bardhaman</p>
-                                        <div style="background: var(--primary); color: var(--gold); padding: 5px 20px; border-radius: 20px; font-weight: bold; display: inline-block; margin: 10px 0; font-size: 14px;">ভারত সরকার অনুমোদিত</div>
-                                    </div>
-
-                                    <h2 class="cert-title">Certificate of Completion</h2>
-
-                                    <div style="font-size: 18px; line-height: 1.8; font-family: 'Times New Roman', serif; margin-top: 30px;">
-                                        <p>Ref No: <b id="c-ref"></b></p>
-                                        <p>This is to certify that</p>
-                                        <div class="student-name" id="c-name">STUDENT NAME</div>
-                                        <p>Son/Daughter of <b id="c-fname">Father Name</b></p>
-                                        <p>has successfully completed the course</p>
-                                        <h3 id="c-course" style="color: var(--primary); font-size: 26px; margin: 10px 0;">COURSE NAME</h3>
-                                        <p>Session: <b id="c-session">2024-25</b></p>
-                                        <p>He/She has secured Grade: <b id="c-grade" style="font-size: 22px;">A</b></p>
-                                    </div>
-
-                                    <div style="display: flex; justify-content: space-between; margin-top: 60px; padding: 0 40px;">
-                                        <div style="text-align: center; border-top: 1px solid #333; width: 200px; padding-top: 5px;">
-                                            <p id="c-date" style="margin:0; font-size:14px;">Date: </p>
-                                            <strong>Issue Date</strong>
-                                        </div>
-                                        <div style="width: 100px; height: 100px; border: 3px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: bold; transform: rotate(-15deg); opacity: 0.8;">
-                                            OFFICIAL<br>SEAL
-                                        </div>
-                                        <div style="text-align: center; border-top: 1px solid #333; width: 200px; padding-top: 30px;">
-                                            <strong>Director Signature</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn-download" onclick="downloadPDF('pdf-cert', 'Certificate')">📥 Download Certificate PDF</button>
-                </div>
-
-                <div class="preview-wrapper">
-                    <h3>Marksheet</h3>
-                    <div class="preview-scroll">
-                        <div id="pdf-mark" class="a4-page">
-                            <div class="mark-container">
-                                <div class="mark-border">
-                                    <div style="text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
-                                        <h1 style="margin:0; color: var(--primary); text-transform: uppercase;">TIKARKHANJI JNYCTSD</h1>
-                                        <p style="margin: 5px;">Tikarkhanji, Katwa, Purba Bardhaman</p>
-                                        <span style="background: var(--primary); color: white; padding: 2px 10px; font-size: 12px;">ভারত সরকার অনুমোদিত</span>
-                                        <h3 style="margin-top: 15px; text-decoration: underline;">STATEMENT OF MARKS</h3>
-                                    </div>
-
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; font-size: 15px; line-height: 1.5;">
-                                        <div><strong>Name:</strong> <span id="m-name"></span></div>
-                                        <div><strong>Ref No:</strong> <span id="m-ref"></span></div>
-                                        <div><strong>Father Name:</strong> <span id="m-fname"></span></div>
-                                        <div><strong>Reg No:</strong> <span id="m-reg"></span></div>
-                                        <div><strong>Course:</strong> <span id="m-course"></span></div>
-                                        <div><strong>Roll No:</strong> <span id="m-roll"></span></div>
-                                        <div><strong>Session:</strong> <span id="m-session"></span></div>
-                                    </div>
-
-                                    <table class="result-table">
-                                        <thead>
-                                            <tr>
-                                                <th class="subject-col">Subject Name</th>
-                                                <th>Theory (70)</th>
-                                                <th>Practical (30)</th>
-                                                <th>Total (100)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="m-tbody">
-                                            </tbody>
-                                    </table>
-
-                                    <div style="margin-top: 30px; border: 2px solid #333; padding: 15px; display: flex; justify-content: space-around; background: #f0f0f0; font-weight: bold; font-size: 16px;">
-                                        <div>Grand Total: <span id="m-total"></span> / 500</div>
-                                        <div>Percentage: <span id="m-percent"></span>%</div>
-                                        <div>Grade: <span id="m-grade"></span></div>
-                                        <div>Result: <span id="m-result"></span></div>
-                                    </div>
-
-                                    <div style="position: absolute; bottom: 60px; left: 0; width: 100%; padding: 0 50px; box-sizing: border-box; display: flex; justify-content: space-between;">
-                                        <div style="text-align: center; width: 200px; border-top: 1px solid #000; padding-top: 5px;"><strong>Verified By</strong></div>
-                                        <div style="text-align: center; width: 200px; border-top: 1px solid #000; padding-top: 5px;"><strong>Controller of Examinations</strong></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn-download" onclick="downloadPDF('pdf-mark', 'Marksheet')">📥 Download Marksheet PDF</button>
-                </div>
-
-            </div>
-        </div>
-
-        <div id="verify-section" class="section">
-            <div class="card verify-box">
-                <h2>Check Student Status</h2>
-                <p>Enter the Student Reference Number found on the certificate.</p>
-                <input type="text" id="searchRef" placeholder="Ref No (e.g., TIK-JNYCTSD-2026-XXXXX)" style="padding: 12px; width: 80%; margin-bottom: 15px; font-size: 1rem;">
-                <br>
-                <button class="btn-generate" onclick="verifyStudent()" style="width: auto; padding: 10px 40px; display: inline-block;">SEARCH</button>
-
-                <div id="verifyResult" class="result-card"></div>
-            </div>
-        </div>
-
     </div>
 
+    <div id="app">
+        <div class="sidebar">
+            <div class="brand"><i class="fas fa-school"></i> JNYCTSD ADMIN</div>
+            <div class="nav-item active" id="btn-dash" onclick="navigate('dashboard')"><i class="fas fa-th-large"></i> <span>Dashboard</span></div>
+            <div class="nav-item" id="btn-track" onclick="navigate('monthTracker')"><i class="fas fa-calendar-alt"></i> <span>Monthly Tracker</span></div>
+            <div class="nav-item" id="btn-adm" onclick="navigate('admission')"><i class="fas fa-user-plus"></i> <span>Admission</span></div>
+            <div class="nav-item" id="btn-std" onclick="navigate('students')"><i class="fas fa-users"></i> <span>Students</span></div>
+            <div class="nav-item" id="btn-exp" onclick="navigate('expenses')"><i class="fas fa-wallet"></i> <span>Expenses</span></div>
+            <div style="flex:1"></div>
+            <div class="nav-item" onclick="auth.signOut()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></div>
+        </div>
+
+        <div class="main">
+            <div class="header">
+                <h3 id="page-title">Welcome Admin</h3>
+                <div style="font-size:0.9rem; color:#6b7280;" id="user-email">user@email.com</div>
+            </div>
+
+            <div id="dashboard" class="section active">
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
+                    <div class="content-card" style="border-left:5px solid var(--primary)">
+                        <small>Total Active Students</small>
+                        <h2 id="d-total">0</h2>
+                    </div>
+                    <div class="content-card" style="border-left:5px solid var(--success)">
+                        <small>This Month Collection</small>
+                        <h2 id="d-coll">₹0</h2>
+                    </div>
+                    <div class="content-card" style="border-left:5px solid var(--danger)">
+                        <small>Pending Dues (Active)</small>
+                        <h2 id="d-due">₹0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div id="monthTracker" class="section">
+                <h2>📅 Monthly Collection</h2>
+                <div class="content-card">
+                    <table id="monthTable">
+                        <thead><tr><th>Month</th><th>Amount</th></tr></thead>
+                        <tbody id="monthBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="admission" class="section">
+                <h2>👤 New Admission</h2>
+                <div class="content-card">
+                    <form id="admForm">
+                        <h4 style="margin-bottom:10px; color:#6b7280;">Student Info</h4>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
+                            <input type="text" id="sName" class="input-box" placeholder="Student Name" required>
+                            <input type="number" id="sPhone" class="input-box" placeholder="Phone Number" required>
+                            <input type="text" id="sBatch" class="input-box" placeholder="Batch (e.g. 10-11 AM)" required>
+                            <select id="sType" class="input-box">
+                                <option value="junior">Junior (School)</option>
+                                <option value="senior">Senior (College/Job)</option>
+                            </select>
+                            <div style="grid-column: span 2">
+                                <label style="font-size:0.8rem; margin-left:5px;">Joining Date:</label>
+                                <input type="date" id="joinDate" class="input-box" required>
+                            </div>
+                        </div>
+
+                        <h4 style="margin-bottom:10px; color:#6b7280;">Fee Structure</h4>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                            <input type="number" id="admFee" class="input-box" placeholder="Adm Fee">
+                            <input type="number" id="monthlyFee" class="input-box" placeholder="Monthly Fee">
+                            <input type="number" id="examFee" class="input-box" placeholder="Exam Fee">
+                            <input type="number" id="duration" class="input-box" placeholder="Course Duration (Months)">
+                        </div>
+                        <button type="submit" class="btn" style="margin-top:20px;">Confirm Admission</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="students" class="section">
+                <h2 style="margin-bottom:20px">📋 Student Management</h2>
+                <div class="content-card">
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" id="btn-view-active" onclick="switchStudentView('active')">Active Students</button>
+                        <button class="toggle-btn" id="btn-view-drop" onclick="switchStudentView('dropout')">Dropout List</button>
+                    </div>
+
+                    <input type="text" id="search" placeholder="🔍 Search name..." onkeyup="renderTable()" class="input-box" style="margin-bottom:15px;">
+                    
+                    <div style="overflow-x:auto">
+                        <table id="table">
+                            <thead>
+                                <tr>
+                                    <th>Student Details</th>
+                                    <th>Payment Breakdown</th>
+                                    <th>Status / Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="expenses" class="section">
+                <h2>💸 Expense Tracker</h2>
+                <div class="content-card">
+                    <form id="expForm" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
+                        <input type="text" id="expCat" class="input-box" placeholder="Category (Rent, Electric...)" required>
+                        <input type="number" id="expAmount" class="input-box" placeholder="Amount" required>
+                        <input type="date" id="expDate" class="input-box" required>
+                        <input type="text" id="expNote" class="input-box" placeholder="Optional Note">
+                        <button type="submit" class="btn" style="grid-column: span 2;">Add Expense</button>
+                    </form>
+                    <table>
+                        <thead><tr><th>Date</th><th>Detail</th><th>Amount</th><th>Action</th></tr></thead>
+                        <tbody id="expBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('modal').style.display='none'">&times;</span>
+            <h3>💰 Add Payment</h3>
+            <p id="payStudentName" style="color:#6b7280; margin-bottom:15px;"></p>
+            <input type="number" id="payAmount" class="input-box" placeholder="Enter Amount" style="margin-bottom:10px;">
+            <select id="payType" class="input-box" style="margin-bottom:10px;">
+                <option value="monthly">Monthly Fee</option>
+                <option value="admission">Admission Fee</option>
+                <option value="exam">Exam Fee</option>
+            </select>
+            <button onclick="submitPay()" class="btn">Record Payment</button>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('editModal').style.display='none'">&times;</span>
+            <h3>✏️ Edit Student</h3>
+            <input type="hidden" id="editId">
+            <div style="display:grid; gap:10px; margin-top:15px;">
+                <div>
+                    <label style="font-size:0.8rem; color:#666;">Name</label>
+                    <input type="text" id="editName" class="input-box">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#666;">Phone</label>
+                    <input type="number" id="editPhone" class="input-box">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#666;">Batch</label>
+                    <input type="text" id="editBatch" class="input-box">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#666;">Join Date</label>
+                    <input type="date" id="editJoinDate" class="input-box">
+                </div>
+            </div>
+            <button onclick="saveStudentEdit()" class="btn" style="margin-top:15px; background:var(--primary);">Save Changes</button>
+        </div>
+    </div>
     <script>
-        // --- Navigation Logic ---
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id + '-section').classList.add('active');
+        // -----------------------------------------------------------
+        // 1. FIREBASE CONFIGURATION (INTEGRATED)
+        // -----------------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyCUmRYc8WtQP3LW_85i5Czore9YjWw0yU",
+            authDomain: "tikarkhanjijnyctsd.firebaseapp.com",
+            databaseURL: "https://tikarkhanjijnyctsd-default-rtdb.firebaseio.com",
+            projectId: "tikarkhanjijnyctsd",
+            storageBucket: "tikarkhanjijnyctsd.appspot.com",
+            messagingSenderId: "513267646081",
+            appId: "1:513267646081:web:1b60262e26e5e6dcef9780",
+            measurementId: "G-VVETX7EZXC"
+        };
+        
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // -----------------------------------------------------------
+        // 2. GLOBAL VARIABLES
+        // -----------------------------------------------------------
+        let students = [];
+        let expenses = [];
+        let currentId = null; // For payment modal
+        let studentViewMode = 'active'; // 'active' or 'dropout'
+
+        // -----------------------------------------------------------
+        // 3. AUTHENTICATION LOGIC
+        // -----------------------------------------------------------
+        function googleLogin() {
+            auth.signInWithPopup(provider)
+                .then((result) => { console.log("Logged in"); })
+                .catch((error) => { alert(error.message); });
         }
 
-        // --- Photo Upload Logic ---
-        let photoData = null;
-        function previewPhoto(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) { 
-                    photoData = e.target.result; 
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app').style.display = 'flex'; // Show App
+                document.getElementById('user-email').innerText = user.email;
+                loadData(); // Start fetching data
+                navigate('dashboard');
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app').style.display = 'none';
+            }
+        });
+
+        // -----------------------------------------------------------
+        // 4. DATA LOADING & DASHBOARD
+        // -----------------------------------------------------------
+        function loadData() {
+            // Fetch Students
+            db.ref('students').on('value', (snap) => {
+                students = [];
+                snap.forEach(c => { students.push({ id: c.key, ...c.val() }); });
+                renderTable();
+                updateDashboard();
+            });
+
+            // Fetch Expenses
+            db.ref('expenses').on('value', (snap) => {
+                expenses = [];
+                snap.forEach(c => { expenses.push({ id: c.key, ...c.val() }); });
+                renderExpenses();
+            });
+        }
+
+        function updateDashboard() {
+            const active = students.filter(s => s.status !== 'dropout');
+            document.getElementById('d-total').innerText = active.length;
+
+            // Calc monthly collection
+            const now = new Date();
+            const currentMonth = now.toISOString().slice(0, 7); // YYYY-MM
+            let monthlyColl = 0;
+            
+            // Pending Due
+            let totalDue = 0;
+
+            active.forEach(s => {
+                const f = getFinance(s);
+                totalDue += f.displayDue;
+                
+                // Check payments this month
+                if(s.payments) {
+                    s.payments.forEach(p => {
+                        if(p.date.startsWith(currentMonth)) monthlyColl += p.amount;
+                    });
                 }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // --- Marks Calculation ---
-        function calcRow(input) {
-            const row = input.parentElement.parentElement;
-            const th = parseFloat(row.querySelector('.th').value) || 0;
-            const pr = parseFloat(row.querySelector('.pr').value) || 0;
-            
-            // Limit checks
-            if(th > 70) { alert("Theory marks cannot be more than 70"); row.querySelector('.th').value = 70; return calcRow(row.querySelector('.th')); }
-            if(pr > 30) { alert("Practical marks cannot be more than 30"); row.querySelector('.pr').value = 30; return calcRow(row.querySelector('.pr')); }
-
-            row.querySelector('.tot').value = th + pr;
-            calcTotal();
-        }
-
-        function calcTotal() {
-            let total = 0, count = 0;
-            document.querySelectorAll('#inputTable tbody tr').forEach(row => {
-                total += parseFloat(row.querySelector('.tot').value) || 0;
-                count++;
             });
-            
-            const maxMarks = count * 100;
-            const percent = (total / maxMarks) * 100;
-            let grade = 'F';
 
-            if (percent >= 80) grade = 'A+';
-            else if (percent >= 70) grade = 'A';
-            else if (percent >= 60) grade = 'B';
-            else if (percent >= 50) grade = 'C';
-            else if (percent >= 40) grade = 'D';
-
-            document.getElementById('grandTotal').innerText = total;
-            document.getElementById('percentage').innerText = percent.toFixed(2);
-            document.getElementById('grade').innerText = grade;
-
-            return { total, percent: percent.toFixed(2), grade };
+            document.getElementById('d-coll').innerText = '₹' + monthlyColl;
+            document.getElementById('d-due').innerText = '₹' + totalDue;
         }
 
-        // --- GENERATE PREVIEW ---
-        function generatePreview() {
-            const sName = document.getElementById('sName').value;
-            if(!sName) { alert("Please enter Student Name!"); return; }
-
-            // 1. Calculations & Data
-            const stats = calcTotal();
-            const refNo = `TIK-JNYCTSD-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+        // -----------------------------------------------------------
+        // 5. CORE LOGIC (30-Day Rule + WhatsApp Fix)
+        // -----------------------------------------------------------
+        
+        // LOGIC 4: Calculate Dues (Only after 30 days)
+        function getFinance(s) {
+            const admFee = Number(s.admFee) || 0;
+            const monFee = Number(s.monthlyFee) || 0;
+            const examFee = Number(s.examFee) || 0;
             
-            const student = {
-                refNo, sName, 
-                fName: document.getElementById('fName').value,
-                regNo: document.getElementById('regNo').value,
-                rollNo: document.getElementById('rollNo').value,
-                course: document.getElementById('course').value,
-                session: document.getElementById('session').value,
-                stats, 
-                marks: [],
-                photoData
+            const payments = s.payments || [];
+            const paidAdm = payments.filter(p => p.type === 'admission').reduce((a, b) => a + b.amount, 0);
+            const paidMon = payments.filter(p => p.type === 'monthly').reduce((a, b) => a + b.amount, 0);
+            const paidExam = payments.filter(p => p.type === 'exam').reduce((a, b) => a + b.amount, 0);
+
+            // 30-Day Logic
+            const joinDate = new Date(s.joinDate);
+            const today = new Date();
+            const diffTime = Math.abs(today - joinDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            
+            // Months payable = integer division of days by 30
+            let monthsPayable = Math.floor(diffDays / 30); 
+            if (monthsPayable < 0) monthsPayable = 0;
+
+            const totalMonDue = monthsPayable * monFee;
+            
+            const dueAdm = Math.max(0, admFee - paidAdm);
+            const dueMon = Math.max(0, totalMonDue - paidMon);
+            const dueExam = Math.max(0, examFee - paidExam);
+            
+            const totalDue = dueAdm + dueMon + dueExam;
+
+            return {
+                paidAdm, paidMon, paidExam,
+                dueAdm, dueMon, dueExam,
+                displayDue: totalDue,
+                monthsPassed: monthsPayable
             };
-
-            // Collect Marks
-            document.querySelectorAll('#inputTable tbody tr').forEach(row => {
-                student.marks.push({
-                    sub: row.querySelector('input[type="text"]').value,
-                    th: row.querySelector('.th').value || 0,
-                    pr: row.querySelector('.pr').value || 0,
-                    tot: row.querySelector('.tot').value || 0
-                });
-            });
-
-            // 2. Save Data to Local Storage (Simulated Database)
-            let db = JSON.parse(localStorage.getItem('JNYCTSD_DATA') || "[]");
-            db.push(student);
-            localStorage.setItem('JNYCTSD_DATA', JSON.stringify(db));
-
-            // 3. Fill Templates
-            fillCertificate(student);
-            fillMarksheet(student);
-
-            // 4. Show Preview
-            document.getElementById('preview-container').style.display = 'block';
-            
-            // Scroll to preview
-            document.getElementById('preview-container').scrollIntoView({ behavior: 'smooth' });
-            
-            alert("Data Saved! Review the documents below and download.");
         }
 
-        function fillCertificate(s) {
-            document.getElementById('c-ref').innerText = s.refNo;
-            document.getElementById('c-name').innerText = s.sName;
-            document.getElementById('c-fname').innerText = s.fName;
-            document.getElementById('c-course').innerText = s.course;
-            document.getElementById('c-session').innerText = s.session;
-            document.getElementById('c-grade').innerText = s.stats.grade;
-            document.getElementById('c-date').innerText = "Date: " + new Date().toLocaleDateString();
-            
-            if(s.photoData) {
-                document.getElementById('c-photo').src = s.photoData;
-                document.getElementById('c-photo').style.display = 'block';
-                document.getElementById('c-photo-placeholder').style.display = 'none';
-            }
+        // LOGIC 1: WhatsApp Number Fixer
+        function formatPhoneNumber(phone) {
+            if (!phone) return "";
+            // Remove non-digits
+            let p = phone.toString().replace(/\D/g, ''); 
+            // If 10 digits, add 91 prefix
+            if (p.length === 10) return '91' + p;
+            return p;
         }
 
-        function fillMarksheet(s) {
-            document.getElementById('m-name').innerText = s.sName;
-            document.getElementById('m-ref').innerText = s.refNo;
-            document.getElementById('m-fname').innerText = s.fName;
-            document.getElementById('m-reg').innerText = s.regNo;
-            document.getElementById('m-roll').innerText = s.rollNo;
-            document.getElementById('m-course').innerText = s.course;
-            document.getElementById('m-session').innerText = s.session;
-            
-            const tbody = document.getElementById('m-tbody');
+        // -----------------------------------------------------------
+        // 6. RENDER FUNCTIONS (Table & Lists)
+        // -----------------------------------------------------------
+        function renderTable() {
+            const tbody = document.getElementById('tbody');
             tbody.innerHTML = '';
-            s.marks.forEach(m => {
+            const search = document.getElementById('search').value.toLowerCase();
+            
+            let list = students;
+            // Filter by Active/Dropout
+            if (studentViewMode === 'active') list = list.filter(s => s.status !== 'dropout');
+            else list = list.filter(s => s.status === 'dropout');
+
+            // Search Filter
+            list.filter(s => s.name.toLowerCase().includes(search)).reverse().forEach(s => {
+                const f = getFinance(s);
+                const badge = s.type === 'senior' ? 'Senior' : 'Junior';
+                const color = s.type === 'senior' ? '#f3e8ff' : '#e0f2fe';
+                const textC = s.type === 'senior' ? '#7c3aed' : '#0284c7';
+
+                const waPhone = formatPhoneNumber(s.phone);
+                
+                const reminderMsg = `⚠️ *FEE REMINDER*\n--------------------------------\n🎓 *TIKARKHANJI JNYCTSD*\n--------------------------------\n👤 Student: *${s.name}*\n📂 Batch: ${s.batch}\n\n📉 *Pending Due: ₹${f.displayDue}*\n(Months Counted: ${f.monthsPassed})\n\nYour fees are overdue. Please clear them soon.\n--------------------------------\n🙏 Thank You`;
+
+                let buttons = '';
+                if(studentViewMode === 'active') {
+                    // LOGIC 2 & 3: Better buttons + Edit button
+                    buttons = `
+                        <button class="action-btn btn-pay" onclick="openPay('${s.id}')" title="Pay"><i class="fas fa-plus"></i></button>
+                        <a href="https://wa.me/${waPhone}?text=${encodeURIComponent(reminderMsg)}" target="_blank" class="action-btn btn-wa" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <button class="action-btn btn-edit" onclick="openEdit('${s.id}')" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="action-btn btn-drop" onclick="markDropout('${s.id}')" title="Dropout"><i class="fas fa-user-slash"></i></button>
+                        <button class="action-btn btn-del" onclick="deleteStudent('${s.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                    `;
+                } else {
+                    buttons = `
+                        <button class="action-btn btn-restore" onclick="restoreStudent('${s.id}')" title="Restore"><i class="fas fa-undo"></i></button>
+                        <button class="action-btn btn-del" onclick="deleteStudent('${s.id}')" title="Permanent Delete"><i class="fas fa-trash"></i></button>
+                    `;
+                }
+
                 tbody.innerHTML += `
                     <tr>
-                        <td class="subject-col">${m.sub}</td>
-                        <td>${m.th}</td>
-                        <td>${m.pr}</td>
-                        <td><b>${m.tot}</b></td>
+                        <td>
+                            <b style="font-size:1.05rem;">${s.name}</b> <span style="background:${color}; color:${textC}; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${badge}</span>
+                            <br><i class="fas fa-phone-alt" style="font-size:0.75rem; color:#6b7280; margin-right:4px;"></i><span style="font-weight:600; color:#4b5563;">${s.phone}</span>
+                            <br><small style="color:#6b7280; font-size:0.85rem;">Batch: ${s.batch} | Join: ${s.joinDate}</small>
+                        </td>
+                        <td>
+                            <div style="font-size:0.9rem; line-height:1.6;">
+                                <span style="color:#2563eb">Adm Paid: ₹${f.paidAdm}</span><br>
+                                <span style="color:#10b981">Mon Paid: ₹${f.paidMon}</span><br>
+                                <span style="color:#8b5cf6">Exam Paid: ₹${f.paidExam}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight:700; font-size:1rem; color:${f.displayDue > 0 ? 'var(--danger)' : 'var(--success)'}; margin-bottom:8px;">
+                                ${f.displayDue > 0 ? 'Due: ₹'+f.displayDue : '✅ All Clear'}
+                            </div>
+                            <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                                ${buttons}
+                            </div>
+                        </td>
                     </tr>`;
             });
-
-            document.getElementById('m-total').innerText = s.stats.total;
-            document.getElementById('m-percent').innerText = s.stats.percent;
-            document.getElementById('m-grade').innerText = s.stats.grade;
-            
-            const resultStatus = s.stats.grade === 'F' ? 'FAIL' : 'PASS';
-            const resultColor = s.stats.grade === 'F' ? 'red' : 'green';
-            document.getElementById('m-result').innerText = resultStatus;
-            document.getElementById('m-result').style.color = resultColor;
         }
 
-        // --- DOWNLOAD FUNCTION ---
-        function downloadPDF(elementId, nameType) {
-            const element = document.getElementById(elementId);
-            const sName = document.getElementById('sName').value || 'Student';
-            
-            const opt = {
-                margin: 0,
-                filename: `${nameType}_${sName}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+        function switchStudentView(mode) {
+            studentViewMode = mode;
+            document.getElementById('btn-view-active').classList.toggle('active', mode === 'active');
+            document.getElementById('btn-view-drop').classList.toggle('active', mode === 'dropout');
+            renderTable();
+        }
 
-            // Temporary visual tweak for clean PDF
-            element.style.boxShadow = 'none';
+        // -----------------------------------------------------------
+        // 7. ACTIONS (Add, Edit, Pay, Delete)
+        // -----------------------------------------------------------
+        
+        // --- ADD STUDENT ---
+        document.getElementById('admForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const s = {
+                name: document.getElementById('sName').value,
+                phone: document.getElementById('sPhone').value,
+                batch: document.getElementById('sBatch').value,
+                type: document.getElementById('sType').value,
+                joinDate: document.getElementById('joinDate').value,
+                admFee: Number(document.getElementById('admFee').value),
+                monthlyFee: Number(document.getElementById('monthlyFee').value),
+                examFee: Number(document.getElementById('examFee').value),
+                duration: document.getElementById('duration').value,
+                status: 'active',
+                payments: []
+            };
+            db.ref('students').push(s);
+            alert('Student Admitted!');
+            e.target.reset();
+            setDefaults();
+        });
+
+        // --- EDIT STUDENT ---
+        function openEdit(id) {
+            const s = students.find(x => x.id === id);
+            if(!s) return;
+            document.getElementById('editId').value = id;
+            document.getElementById('editName').value = s.name;
+            document.getElementById('editPhone').value = s.phone;
+            document.getElementById('editBatch').value = s.batch;
+            document.getElementById('editJoinDate').value = s.joinDate;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function saveStudentEdit() {
+            const id = document.getElementById('editId').value;
+            const updates = {
+                name: document.getElementById('editName').value,
+                phone: document.getElementById('editPhone').value,
+                batch: document.getElementById('editBatch').value,
+                joinDate: document.getElementById('editJoinDate').value
+            };
+            if(confirm("Save changes?")) {
+                db.ref('students/' + id).update(updates);
+                document.getElementById('editModal').style.display = 'none';
+            }
+        }
+
+        // --- PAYMENT ---
+        function openPay(id) { 
+            currentId = id; 
+            const s = students.find(x => x.id === id);
+            document.getElementById('payStudentName').innerText = `For: ${s.name}`;
+            document.getElementById('modal').style.display='flex'; 
+        }
+        
+        function submitPay() {
+            const amt = Number(document.getElementById('payAmount').value);
+            const type = document.getElementById('payType').value;
             
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.boxShadow = '0 0 15px rgba(0,0,0,0.3)'; // restore shadow
+            if(amt > 0 && currentId) {
+                const s = students.find(x => x.id === currentId);
+                const newPay = { date: new Date().toISOString(), amount: amt, type: type };
+                
+                const updatedPayments = s.payments ? [...s.payments, newPay] : [newPay];
+                db.ref('students/'+currentId).update({ payments: updatedPayments });
+                
+                document.getElementById('modal').style.display='none';
+                document.getElementById('payAmount').value='';
+                
+                // WhatsApp Receipt
+                const waPhone = formatPhoneNumber(s.phone);
+                const dateStr = new Date().toLocaleDateString('en-IN');
+                const receiptMsg = `🧾 *PAYMENT RECEIPT*\n--------------------------------\n🎓 *TIKARKHANJI JNYCTSD*\n--------------------------------\n👤 Name: *${s.name}*\n📂 Batch: ${s.batch}\n📅 Date: ${dateStr}\n\n💰 *Received: ₹${amt}*\n📌 Type: ${type}\n\n✅ *Status: Paid*\n--------------------------------\nThank you for your payment! 🙏`;
+                window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(receiptMsg)}`, '_blank');
+            }
+        }
+
+        // --- EXPENSES ---
+        document.getElementById('expForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const ex = {
+                category: document.getElementById('expCat').value,
+                amount: Number(document.getElementById('expAmount').value),
+                note: document.getElementById('expNote').value,
+                date: document.getElementById('expDate').value
+            };
+            db.ref('expenses').push(ex);
+            e.target.reset();
+            document.getElementById('expDate').valueAsDate = new Date();
+        });
+
+        function deleteExpense(id) {
+            if(confirm("Delete expense?")) db.ref('expenses/' + id).remove();
+        }
+
+        function renderExpenses() {
+            const tbody = document.getElementById('expBody');
+            tbody.innerHTML = '';
+            expenses.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(ex => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${ex.date}</td>
+                        <td><b>${ex.category}</b><br><small>${ex.note}</small></td>
+                        <td style="color:var(--danger);">- ₹${ex.amount}</td>
+                        <td><button class="action-btn btn-del" onclick="deleteExpense('${ex.id}')"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
             });
         }
 
-        // --- VERIFICATION SYSTEM ---
-        function verifyStudent() {
-            const query = document.getElementById('searchRef').value.trim();
-            if(!query) return;
+        // --- UTILS (Delete, Drop, Restore) ---
+        function markDropout(id) { if(confirm("Confirm Drop-Out?")) db.ref('students/' + id).update({ status: 'dropout' }); }
+        function restoreStudent(id) { if(confirm("Restore to Active?")) db.ref('students/' + id).update({ status: 'active' }); }
+        function deleteStudent(id) { if(confirm("⚠️ DELETE PERMANENTLY?")) db.ref('students/' + id).remove(); }
 
-            const db = JSON.parse(localStorage.getItem('JNYCTSD_DATA') || "[]");
-            const found = db.find(s => s.refNo === query);
-            const resDiv = document.getElementById('verifyResult');
+        // --- NAVIGATION ---
+        function navigate(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             
-            resDiv.style.display = 'block';
-            if(found) {
-                resDiv.innerHTML = `
-                    <div style="border-left: 5px solid green; padding-left: 10px;">
-                        <h3 style="color:green; margin-top:0;">✔ Verified Student Record</h3>
-                        <p><b>Name:</b> ${found.sName}</p>
-                        <p><b>Father Name:</b> ${found.fName}</p>
-                        <p><b>Course:</b> ${found.course}</p>
-                        <p><b>Session:</b> ${found.session}</p>
-                        <p><b>Final Grade:</b> ${found.stats.grade} (${found.stats.percent}%)</p>
-                    </div>
-                `;
-            } else {
-                resDiv.innerHTML = `
-                    <div style="border-left: 5px solid red; padding-left: 10px;">
-                        <h3 style="color:red; margin-top:0;">✘ No Record Found</h3>
-                        <p>The Reference Number <b>${query}</b> does not exist in our database.</p>
-                    </div>
-                `;
-            }
+            const map = {'dashboard':'btn-dash', 'monthTracker':'btn-track', 'admission':'btn-adm', 'students':'btn-std', 'expenses':'btn-exp'};
+            if(map[id]) document.getElementById(map[id]).classList.add('active');
+            
+            document.querySelector('.main').scrollTop = 0;
         }
+
+        // --- INITIALIZATION ---
+        function setDefaults() {
+            if(document.getElementById('joinDate')) document.getElementById('joinDate').valueAsDate = new Date();
+            if(document.getElementById('expDate')) document.getElementById('expDate').valueAsDate = new Date();
+            document.getElementById('admFee').value = 150;
+            document.getElementById('monthlyFee').value = 150;
+            document.getElementById('examFee').value = 50;
+        }
+        
+        window.onclick = function(event) {
+            const payModal = document.getElementById('modal');
+            const editModal = document.getElementById('editModal');
+            if (event.target == payModal) payModal.style.display = "none";
+            if (event.target == editModal) editModal.style.display = "none";
+        }
+
+        setDefaults();
     </script>
 </body>
 </html>
