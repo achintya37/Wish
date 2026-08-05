@@ -1,562 +1,277 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WISH Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
+    <title>Examination Form | Katwa Vidyasagar IHM</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary: #2563eb; --secondary: #1e40af; --bg: #f3f4f6;
-            --text: #1f2937; --success: #10b981; --danger: #ef4444;
-            --card: #ffffff; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
-
-        /* Login Screen */
-        #login-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .login-box {
-            background: white; padding: 2rem; border-radius: 1rem; text-align: center;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); width: 90%; max-width: 400px;
-        }
-        .google-btn {
-            background: #fff; border: 1px solid #ddd; padding: 10px 20px;
-            border-radius: 5px; cursor: pointer; display: flex; align-items: center;
-            justify-content: center; gap: 10px; width: 100%; margin-top: 20px;
-            font-weight: 600; transition: 0.2s;
-        }
-        .google-btn:hover { background: #f9fafb; }
-
-        /* Main App Layout */
-        #app { display: none; height: 100%; display: flex; }
-        .sidebar {
-            width: 250px; background: white; border-right: 1px solid #e5e7eb;
-            display: flex; flex-direction: column; padding: 1rem;
-        }
-        .brand { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 2rem; display: flex; align-items: center; gap: 10px; }
-        .nav-item {
-            padding: 12px; border-radius: 8px; cursor: pointer; color: #4b5563;
-            margin-bottom: 5px; display: flex; align-items: center; gap: 10px; transition: 0.2s;
-        }
-        .nav-item:hover, .nav-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
-        
-        .main { flex: 1; padding: 20px; overflow-y: auto; position: relative; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .section { display: none; animation: fadeIn 0.3s ease; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .content-card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; }
-        .input-box { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; transition: 0.2s; }
-        .input-box:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
-        .btn {
-            background: var(--primary); color: white; border: none; padding: 10px 20px;
-            border-radius: 6px; cursor: pointer; font-weight: 500; width: 100%; margin-top: 10px;
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden; 
         }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; color: #6b7280; font-size: 0.85rem; border-bottom: 2px solid #f3f4f6; padding: 10px; }
-        td { padding: 15px 10px; border-bottom: 1px solid #f3f4f6; font-size: 0.95rem; vertical-align: middle; }
+        .header-section {
+            background-color: #0d2340; 
+            color: white;
+            padding: 20px 10px;
+            border-bottom: 4px solid #ffcc00; 
+        }
+        .header-section h1 { font-weight: 900; margin-bottom: 5px; font-size: 22px; }
+        .header-section p { margin-bottom: 2px; font-size: 12px; color: #d1d1d1; }
+        .header-section h4 { font-size: 18px; margin-top: 10px; }
+
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-top: -15px;
+            padding: 20px 15px;
+            transition: all 0.5s ease;
+        }
         
-        .action-btn { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px; color: white; }
-        .btn-pay { background: var(--success); }
-        .btn-wa { background: #25D366; }
-        .btn-edit { background: #f59e0b; }
-        .btn-drop { background: #6b7280; }
-        .btn-del { background: var(--danger); }
-        .btn-restore { background: var(--primary); }
+        .fee-alert-box {
+            background-color: #fff3cd;
+            border: 2px solid #dc3545; 
+            color: #856404;
+            padding: 15px 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .fee-alert-box h4 { color: #dc3545; font-weight: 900; font-size: 17px; margin-bottom: 8px; }
+        .fee-alert-box p.fee-amount { font-size: 20px; font-weight: bold; color: #000; margin-bottom: 5px; }
+        .fee-alert-box p.warning-text { color: #dc3545; font-size: 13px; font-weight: 700; margin-bottom: 0; }
 
-        .view-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
-        .toggle-btn { padding: 8px 16px; border: 1px solid #d1d5db; background: white; border-radius: 20px; cursor: pointer; font-size: 0.9rem; }
-        .toggle-btn.active { background: var(--text); color: white; border-color: var(--text); }
+        .section-title {
+            color: #0d2340;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 6px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 17px;
+        }
+        .sub-heading { font-size: 15px; color: #444; margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
+        
+        .form-label { font-size: 13px; margin-bottom: 4px; color: #333; }
+        .form-control, .form-select { font-size: 15px; padding: 12px 10px; border-radius: 6px; min-height: 48px; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; }
-        .close { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
+        /* QR Code Section */
+        .qr-section {
+            background-color: #f8fbff;
+            border: 2px solid #0d6efd; 
+            border-radius: 8px;
+            text-align: center;
+            padding: 20px 10px;
+        }
+        .qr-code-container {
+            background-color: #0d2340; 
+            padding: 15px;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 300px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            cursor: pointer; 
+            transition: transform 0.2s;
+        }
+        .qr-code-container:active { transform: scale(0.95); }
+        .qr-code-img { width: 100%; height: auto; border-radius: 8px; background-color: white; padding: 5px; }
+        .scan-text { font-size: 22px; font-weight: 900; color: #dc3545; margin-bottom: 0; }
+        
+        .instruction-box { background-color: #e2f0fd; border-left: 4px solid #0d6efd; padding: 12px; text-align: left; border-radius: 5px; margin-bottom: 20px; font-size: 13px; }
+        
+        .custom-checkbox { transform: scale(1.4); margin-right: 12px; }
+        .checkbox-container { display: flex; align-items: center; margin-bottom: 10px; padding: 12px 10px; background-color: #fff; border: 1px solid #dee2e6; border-radius: 6px; }
+        
+        .submit-btn { background-color: #ffcc00; color: #0d2340; font-weight: 900; font-size: 18px; padding: 15px; border: none; border-radius: 8px; width: 100%; }
+        
+        .footer { background-color: #1a1a1a; color: #d1d1d1; padding: 20px 10px; margin-top: 30px; font-size: 12px; }
 
-        @media (max-width: 768px) {
-            #app { flex-direction: column; }
-            .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 1px solid #e5e7eb; border-right: none; }
-            .brand { display: none; }
-            .nav-item span { display: none; }
-            .nav-item i { margin: 0; font-size: 1.2rem; }
+        .modal-content.qr-modal-content { background-color: rgba(13, 35, 64, 0.95); border: none; }
+
+        /* Success Message Styling */
+        .success-message {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .success-icon {
+            color: #198754; /* Bootstrap success green */
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="login-box">
-            <h2 style="color:var(--secondary); margin-bottom:10px;">WISH PORTAL</h2>
-            <p style="color:#6b7280; font-size:0.9rem;">Management Portal Access</p>
-            <button class="google-btn" onclick="googleLogin()">
-                <i class="fab fa-google"></i> Sign in with Google
-            </button>
-        </div>
+    <!-- Header Section -->
+    <div class="header-section text-center">
+        <h1>KATWA VIDYASAGAR IHM</h1>
+        <p>UNIT OF BVIHMT | Registered Under Govt. of West Bengal</p>
+        <p>ISO 9001-2015 Certified Institute</p>
+        <h4 style="color: #ffcc00; font-weight: bold;">EXAMINATION FORM</h4>
+        <p class="mb-0" style="color: white; font-size: 13px;">(1 YEAR HOTEL MANAGEMENT COURSE)</p>
     </div>
 
-    <div id="app">
-        <div class="sidebar">
-            <div class="brand"><i class="fas fa-star"></i> WISH ADMIN</div>
-            <div class="nav-item active" id="btn-dash" onclick="navigate('dashboard')"><i class="fas fa-th-large"></i> <span>Dashboard</span></div>
-            <div class="nav-item" id="btn-track" onclick="navigate('monthTracker')"><i class="fas fa-calendar-alt"></i> <span>Monthly Tracker</span></div>
-            <div class="nav-item" id="btn-adm" onclick="navigate('admission')"><i class="fas fa-user-plus"></i> <span>Admission</span></div>
-            <div class="nav-item" id="btn-std" onclick="navigate('students')"><i class="fas fa-users"></i> <span>Students</span></div>
-            <div class="nav-item" id="btn-exp" onclick="navigate('expenses')"><i class="fas fa-wallet"></i> <span>Expenses</span></div>
-            <div style="flex:1"></div>
-            <div class="nav-item" onclick="auth.signOut()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></div>
-        </div>
-
-        <div class="main">
-            <div class="header">
-                <h3 id="page-title">Welcome Admin</h3>
-                <div style="font-size:0.9rem; color:#6b7280;" id="user-email">...</div>
-            </div>
-
-            <div id="dashboard" class="section active">
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
-                    <div class="content-card" style="border-left:5px solid var(--primary)">
-                        <small>Total Active Students</small><h2 id="d-total">0</h2>
-                    </div>
-                    <div class="content-card" style="border-left:5px solid var(--success)">
-                        <small>This Month Collection</small><h2 id="d-coll">₹0</h2>
-                    </div>
-                    <div class="content-card" style="border-left:5px solid var(--danger)">
-                        <small>Pending Dues (Active)</small><h2 id="d-due">₹0</h2>
-                    </div>
-                </div>
-            </div>
-
-            <div id="monthTracker" class="section">
-                <h2>📅 Monthly Collection</h2>
-                <div class="content-card">
-                    <table id="monthTable"><thead><tr><th>Month</th><th>Amount</th></tr></thead><tbody id="monthBody"></tbody></table>
-                </div>
-            </div>
-
-            <div id="admission" class="section">
-                <h2>👤 New Admission</h2>
-                <div class="content-card">
-                    <form id="admForm">
-                        <h4 style="margin-bottom:10px; color:#6b7280;">Student Info</h4>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
-                            <input type="text" id="sName" class="input-box" placeholder="Name" required>
-                            <input type="number" id="sPhone" class="input-box" placeholder="Phone" required>
-                            <input type="text" id="sBatch" class="input-box" placeholder="Batch" required>
-                            <select id="sType" class="input-box"><option value="junior">Junior</option><option value="senior">Senior</option></select>
-                            <div style="grid-column: span 2"><label style="font-size:0.8rem;">Join Date:</label><input type="date" id="joinDate" class="input-box" required></div>
-                        </div>
-                        <h4 style="margin-bottom:10px; color:#6b7280;">Fee Structure</h4>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                            <input type="number" id="admFee" class="input-box" placeholder="Adm Fee">
-                            <input type="number" id="monthlyFee" class="input-box" placeholder="Monthly Fee">
-                            <input type="number" id="examFee" class="input-box" placeholder="Exam Fee">
-                            <input type="number" id="duration" class="input-box" placeholder="Months">
-                        </div>
-                        <button type="submit" class="btn">Confirm Admission</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="students" class="section">
-                <h2 style="margin-bottom:20px">📋 Student Management</h2>
-                <div class="content-card">
-                    <div class="view-toggle">
-                        <button class="toggle-btn active" id="btn-view-active" onclick="switchStudentView('active')">Active Students</button>
-                        <button class="toggle-btn" id="btn-view-drop" onclick="switchStudentView('dropout')">Dropout List</button>
-                    </div>
-                    <input type="text" id="search" placeholder="🔍 Search..." onkeyup="renderTable()" class="input-box" style="margin-bottom:15px;">
-                    <div style="overflow-x:auto">
-                        <table id="table">
-                            <thead><tr><th>Student Details</th><th>Payment Breakdown</th><th>Status / Action</th></tr></thead>
-                            <tbody id="tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div id="expenses" class="section">
-                <h2>💸 Expense Tracker</h2>
-                <div class="content-card">
-                    <form id="expForm" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
-                        <input type="text" id="expCat" class="input-box" placeholder="Category" required>
-                        <input type="number" id="expAmount" class="input-box" placeholder="Amount" required>
-                        <input type="date" id="expDate" class="input-box" required>
-                        <input type="text" id="expNote" class="input-box" placeholder="Note">
-                        <button type="submit" class="btn" style="grid-column: span 2;">Add Expense</button>
-                    </form>
-                    <table><thead><tr><th>Date</th><th>Detail</th><th>Amount</th><th>Action</th></tr></thead><tbody id="expBody"></tbody></table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="document.getElementById('modal').style.display='none'">&times;</span>
-            <h3>💰 Add Payment</h3>
-            <p id="payStudentName" style="color:#6b7280; margin-bottom:15px;"></p>
-            <input type="number" id="payAmount" class="input-box" placeholder="Amount" style="margin-bottom:10px;">
-            <select id="payType" class="input-box" style="margin-bottom:10px;"><option value="monthly">Monthly Fee</option><option value="admission">Admission Fee</option><option value="exam">Exam Fee</option></select>
-            <button onclick="submitPay()" class="btn">Record Payment</button>
-        </div>
-    </div>
-
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="document.getElementById('editModal').style.display='none'">&times;</span>
-            <h3>✏️ Edit Student</h3>
-            <input type="hidden" id="editId">
-            <div style="display:grid; gap:10px; margin-top:15px;">
-                <label>Name</label><input type="text" id="editName" class="input-box">
-                <label>Phone</label><input type="number" id="editPhone" class="input-box">
-                <label>Batch</label><input type="text" id="editBatch" class="input-box">
-                <label>Join Date</label><input type="date" id="editJoinDate" class="input-box">
-            </div>
-            <button onclick="saveStudentEdit()" class="btn" style="margin-top:15px;">Save Changes</button>
-        </div>
-                                                                                        </div>
-                                                                                            <script>
-    // -----------------------------------------------------------
-    // 1. FIREBASE CONFIGURATION (INTEGRATED FROM YOUR IMAGE)
-    // -----------------------------------------------------------
-    const firebaseConfig = {
-        apiKey: "AIzaSyCUmRYc8WtQP3LW_85i5Czore9YjWw0yU",
-        authDomain: "tikarkhanjijnyctsd.firebaseapp.com",
-        databaseURL: "https://tikarkhanjijnyctsd-default-rtdb.firebaseio.com",
-        projectId: "tikarkhanjijnyctsd",
-        storageBucket: "tikarkhanjijnyctsd.appspot.com",
-        messagingSenderId: "513267646081",
-        appId: "1:513267646081:web:1b60262e26e5e6dcef9780",
-        measurementId: "G-VVETX7EZXC"
-    };
-    
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const auth = firebase.auth();
-    const db = firebase.database();
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    // -----------------------------------------------------------
-    // 2. GLOBAL VARIABLES & DATABASE REFERENCES
-    // -----------------------------------------------------------
-    let students = [];
-    let expenses = [];
-    let currentId = null; 
-    let studentViewMode = 'active'; 
-
-    // WISH PORTAL SPECIFIC TABLES (SEPARATE DATA)
-    const DB_STUDENTS = 'wish_students'; 
-    const DB_EXPENSES = 'wish_expenses'; 
-
-    // -----------------------------------------------------------
-    // 3. AUTHENTICATION
-    // -----------------------------------------------------------
-    function googleLogin() {
-        auth.signInWithPopup(provider)
-            .then((result) => { console.log("Logged in"); })
-            .catch((error) => { alert(error.message); });
-    }
-
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app').style.display = 'flex';
-            document.getElementById('user-email').innerText = user.email;
-            loadData();
-            navigate('dashboard');
-        } else {
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('app').style.display = 'none';
-        }
-    });
-
-    // -----------------------------------------------------------
-    // 4. DATA LOADING 
-    // -----------------------------------------------------------
-    function loadData() {
-        db.ref(DB_STUDENTS).on('value', (snap) => {
-            students = [];
-            snap.forEach(c => { students.push({ id: c.key, ...c.val() }); });
-            renderTable();
-            updateDashboard();
-        });
-
-        db.ref(DB_EXPENSES).on('value', (snap) => {
-            expenses = [];
-            snap.forEach(c => { expenses.push({ id: c.key, ...c.val() }); });
-            renderExpenses();
-        });
-    }
-
-    function updateDashboard() {
-        const active = students.filter(s => s.status !== 'dropout');
-        document.getElementById('d-total').innerText = active.length;
-        const now = new Date();
-        const currentMonth = now.toISOString().slice(0, 7); 
-        let monthlyColl = 0;
-        let totalDue = 0;
-
-        active.forEach(s => {
-            const f = getFinance(s);
-            totalDue += f.displayDue;
-            if(s.payments) {
-                s.payments.forEach(p => {
-                    if(p.date.startsWith(currentMonth)) monthlyColl += p.amount;
-                });
-            }
-        });
-
-        document.getElementById('d-coll').innerText = '₹' + monthlyColl;
-        document.getElementById('d-due').innerText = '₹' + totalDue;
-    }
-
-    // -----------------------------------------------------------
-    // 5. FINANCE & UTILS (30-Day Rule)
-    // -----------------------------------------------------------
-    function getFinance(s) {
-        const admFee = Number(s.admFee) || 0;
-        const monFee = Number(s.monthlyFee) || 0;
-        const examFee = Number(s.examFee) || 0;
-        const payments = s.payments || [];
-        const paidAdm = payments.filter(p => p.type === 'admission').reduce((a, b) => a + b.amount, 0);
-        const paidMon = payments.filter(p => p.type === 'monthly').reduce((a, b) => a + b.amount, 0);
-        const paidExam = payments.filter(p => p.type === 'exam').reduce((a, b) => a + b.amount, 0);
-
-        const joinDate = new Date(s.joinDate);
-        const today = new Date();
-        const diffTime = Math.abs(today - joinDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-        let monthsPayable = Math.floor(diffDays / 30); 
-        if (monthsPayable < 0) monthsPayable = 0;
-
-        const totalMonDue = monthsPayable * monFee;
-        const dueAdm = Math.max(0, admFee - paidAdm);
-        const dueMon = Math.max(0, totalMonDue - paidMon);
-        const dueExam = Math.max(0, examFee - paidExam);
-        
-        return { paidAdm, paidMon, paidExam, displayDue: dueAdm + dueMon + dueExam, monthsPassed: monthsPayable };
-    }
-
-    function formatPhoneNumber(phone) {
-        if (!phone) return "";
-        let p = phone.toString().replace(/\D/g, ''); 
-        if (p.length === 10) return '91' + p;
-        return p;
-    }
-
-    // -----------------------------------------------------------
-    // 6. RENDER FUNCTIONS
-    // -----------------------------------------------------------
-    function renderTable() {
-        const tbody = document.getElementById('tbody');
-        tbody.innerHTML = '';
-        const search = document.getElementById('search').value.toLowerCase();
-        let list = students;
-        if (studentViewMode === 'active') list = list.filter(s => s.status !== 'dropout');
-        else list = list.filter(s => s.status === 'dropout');
-
-        list.filter(s => s.name.toLowerCase().includes(search)).reverse().forEach(s => {
-            const f = getFinance(s);
-            const badge = s.type === 'senior' ? 'Senior' : 'Junior';
-            const color = s.type === 'senior' ? '#f3e8ff' : '#e0f2fe';
-            const textC = s.type === 'senior' ? '#7c3aed' : '#0284c7';
-            const waPhone = formatPhoneNumber(s.phone);
-            const reminderMsg = `⚠️ *FEE REMINDER*\n--------------------------------\n🎓 *WISH INSTITUTE*\n--------------------------------\n👤 Student: *${s.name}*\n📂 Batch: ${s.batch}\n\n📉 *Pending Due: ₹${f.displayDue}*\n\nYour fees are overdue.\n--------------------------------\n🙏 Thank You`;
-
-            let buttons = '';
-            if(studentViewMode === 'active') {
-                buttons = `
-                    <button class="action-btn btn-pay" onclick="openPay('${s.id}')" title="Pay"><i class="fas fa-plus"></i></button>
-                    <a href="https://wa.me/${waPhone}?text=${encodeURIComponent(reminderMsg)}" target="_blank" class="action-btn btn-wa"><i class="fab fa-whatsapp"></i></a>
-                    <button class="action-btn btn-edit" onclick="openEdit('${s.id}')"><i class="fas fa-pencil-alt"></i></button>
-                    <button class="action-btn btn-drop" onclick="markDropout('${s.id}')"><i class="fas fa-user-slash"></i></button>
-                    <button class="action-btn btn-del" onclick="deleteStudent('${s.id}')"><i class="fas fa-trash"></i></button>
-                `;
-            } else {
-                buttons = `
-                    <button class="action-btn btn-restore" onclick="restoreStudent('${s.id}')"><i class="fas fa-undo"></i></button>
-                    <button class="action-btn btn-del" onclick="deleteStudent('${s.id}')"><i class="fas fa-trash"></i></button>
-                `;
-            }
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>
-                        <b style="font-size:1.05rem;">${s.name}</b> <span style="background:${color}; color:${textC}; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${badge}</span>
-                        <br><i class="fas fa-phone-alt" style="font-size:0.75rem; color:#6b7280; margin-right:4px;"></i><span style="font-weight:600; color:#4b5563;">${s.phone}</span>
-                        <br><small style="color:#6b7280; font-size:0.85rem;">Batch: ${s.batch} | Join: ${s.joinDate}</small>
-                    </td>
-                    <td>
-                        <div style="font-size:0.9rem; line-height:1.6;">
-                            <span style="color:#2563eb">Adm: ₹${f.paidAdm}</span><br>
-                            <span style="color:#10b981">Mon: ₹${f.paidMon}</span><br>
-                            <span style="color:#8b5cf6">Exam: ₹${f.paidExam}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="font-weight:700; font-size:1rem; color:${f.displayDue > 0 ? 'var(--danger)' : 'var(--success)'}; margin-bottom:8px;">
-                            ${f.displayDue > 0 ? 'Due: ₹'+f.displayDue : '✅ All Clear'}
-                        </div>
-                        <div style="display:flex; gap:5px; flex-wrap:wrap;">${buttons}</div>
-                    </td>
-                </tr>`;
-        });
-    }
-
-    // -----------------------------------------------------------
-    // 7. ACTIONS (CRUD)
-    // -----------------------------------------------------------
-    document.getElementById('admForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const s = {
-            name: document.getElementById('sName').value,
-            phone: document.getElementById('sPhone').value,
-            batch: document.getElementById('sBatch').value,
-            type: document.getElementById('sType').value,
-            joinDate: document.getElementById('joinDate').value,
-            admFee: Number(document.getElementById('admFee').value),
-            monthlyFee: Number(document.getElementById('monthlyFee').value),
-            examFee: Number(document.getElementById('examFee').value),
-            duration: document.getElementById('duration').value,
-            status: 'active',
-            payments: []
-        };
-        db.ref(DB_STUDENTS).push(s);
-        alert('Student Admitted!');
-        e.target.reset();
-        setDefaults();
-    });
-
-    function openEdit(id) {
-        const s = students.find(x => x.id === id);
-        if(!s) return;
-        document.getElementById('editId').value = id;
-        document.getElementById('editName').value = s.name;
-        document.getElementById('editPhone').value = s.phone;
-        document.getElementById('editBatch').value = s.batch;
-        document.getElementById('editJoinDate').value = s.joinDate;
-        document.getElementById('editModal').style.display = 'flex';
-    }
-
-    function saveStudentEdit() {
-        const id = document.getElementById('editId').value;
-        const updates = {
-            name: document.getElementById('editName').value,
-            phone: document.getElementById('editPhone').value,
-            batch: document.getElementById('editBatch').value,
-            joinDate: document.getElementById('editJoinDate').value
-        };
-        if(confirm("Save changes?")) {
-            db.ref(DB_STUDENTS + '/' + id).update(updates);
-            document.getElementById('editModal').style.display = 'none';
-        }
-    }
-
-    function openPay(id) { 
-        currentId = id; 
-        const s = students.find(x => x.id === id);
-        document.getElementById('payStudentName').innerText = `For: ${s.name}`;
-        document.getElementById('modal').style.display='flex'; 
-    }
-    
-    function submitPay() {
-        const amt = Number(document.getElementById('payAmount').value);
-        const type = document.getElementById('payType').value;
-        if(amt > 0 && currentId) {
-            const s = students.find(x => x.id === currentId);
-            const newPay = { date: new Date().toISOString(), amount: amt, type: type };
-            const updatedPayments = s.payments ? [...s.payments, newPay] : [newPay];
-            db.ref(DB_STUDENTS + '/'+currentId).update({ payments: updatedPayments });
-            document.getElementById('modal').style.display='none';
-            document.getElementById('payAmount').value='';
+    <!-- Main Form Area -->
+    <div class="container mb-4 px-2">
+        <div class="form-container" id="mainFormContainer">
             
-            const waPhone = formatPhoneNumber(s.phone);
-            const dateStr = new Date().toLocaleDateString('en-IN');
-            const receiptMsg = `🧾 *PAYMENT RECEIPT*\n--------------------------------\n🎓 *WISH INSTITUTE*\n--------------------------------\n👤 Name: *${s.name}*\n📂 Batch: ${s.batch}\n📅 Date: ${dateStr}\n\n💰 *Received: ₹${amt}*\n📌 Type: ${type}\n\n✅ *Status: Paid*\n--------------------------------\nThank you! 🙏`;
-            window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(receiptMsg)}`, '_blank');
-        }
-    }
+            <div class="fee-alert-box">
+                <h4>⚠️ Important Notice ⚠️</h4>
+                <p class="fee-amount">Examination Fee: ₹ 625 (৬২৫ টাকা)</p>
+                <p class="warning-text">পেমেন্ট না করলে এবং সঠিক Transaction ID না দিলে ফর্মটি বাতিল হবে!</p>
+            </div>
 
-    document.getElementById('expForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const ex = {
-            category: document.getElementById('expCat').value,
-            amount: Number(document.getElementById('expAmount').value),
-            note: document.getElementById('expNote').value,
-            date: document.getElementById('expDate').value
-        };
-        db.ref(DB_EXPENSES).push(ex);
-        e.target.reset();
-        document.getElementById('expDate').valueAsDate = new Date();
-    });
+            <!-- Added id="examForm" for JavaScript control -->
+            <form id="examForm">
+                
+                <!-- STUDENT INFORMATION -->
+                <h4 class="section-title">Student Information</h4>
+                
+                <div class="sub-heading fw-bold">Personal Details</div>
+                <div class="mb-3"><label class="form-label fw-bold">Full Name *</label><input type="text" class="form-control" placeholder="Enter Full Name" required></div>
+                <div class="mb-3"><label class="form-label fw-bold">Date of Birth *</label><input type="date" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label fw-bold">Father's Name *</label><input type="text" class="form-control" placeholder="Enter Father's Name" required></div>
+                <div class="mb-3"><label class="form-label fw-bold">Mother's Name *</label><input type="text" class="form-control" placeholder="Enter Mother's Name" required></div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Gender *</label>
+                    <select class="form-select" required>
+                        <option value="">Select Gender</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Blood Group</label>
+                    <select class="form-select">
+                        <option value="">Select (Optional)</option><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Highest Qualification *</label>
+                    <select class="form-select" required>
+                        <option value="">Select Qualification</option><option value="10th">10th Pass</option><option value="12th">12th Pass</option><option value="Graduate">Graduate</option>
+                    </select>
+                </div>
 
-    function deleteExpense(id) {
-        if(confirm("Delete expense?")) db.ref(DB_EXPENSES + '/' + id).remove();
-    }
+                <div class="sub-heading fw-bold mt-4">Contact Details</div>
+                <div class="mb-3"><label class="form-label fw-bold">Phone Number *</label><input type="tel" class="form-control" placeholder="10-digit mobile number" required></div>
+                <div class="mb-3"><label class="form-label fw-bold">WhatsApp Number</label><input type="tel" class="form-control" placeholder="10-digit WhatsApp number"></div>
+                <div class="mb-3"><label class="form-label fw-bold">Email Address</label><input type="email" class="form-control" placeholder="example@email.com"></div>
 
-    function renderExpenses() {
-        const tbody = document.getElementById('expBody');
-        tbody.innerHTML = '';
-        expenses.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(ex => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${ex.date}</td>
-                    <td><b>${ex.category}</b><br><small>${ex.note}</small></td>
-                    <td style="color:var(--danger);">- ₹${ex.amount}</td>
-                    <td><button class="action-btn btn-del" onclick="deleteExpense('${ex.id}')"><i class="fas fa-trash"></i></button></td>
-                </tr>`;
+                <div class="sub-heading fw-bold mt-4">Full Address</div>
+                <div class="mb-3"><label class="form-label fw-bold">Village / Street / Town *</label><input type="text" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label fw-bold">Post Office (P.O) *</label><input type="text" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label fw-bold">Police Station (P.S) *</label><input type="text" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label fw-bold">District *</label><input type="text" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label fw-bold">PIN Code *</label><input type="text" class="form-control" required></div>
+
+                <!-- TRAINING STATUS -->
+                <h4 class="section-title mt-4">Training Status</h4>
+                <div class="mb-4 p-2 bg-light border rounded">
+                    <label class="form-label fw-bold d-block mb-2 text-dark">Select Completed Training (Tick one or both) *</label>
+                    <div class="checkbox-container">
+                        <input class="form-check-input custom-checkbox" type="checkbox" name="trainingStatus" id="it4months" value="4 Month IT" required>
+                        <label class="form-check-label fw-bold ms-1" for="it4months" style="color: #0d6efd;">4 Month IT Complete</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input class="form-check-input custom-checkbox" type="checkbox" name="trainingStatus" id="jt6months" value="6 Month JT">
+                        <label class="form-check-label fw-bold ms-1" for="jt6months" style="color: #198754;">6 Month JT Complete</label>
+                    </div>
+                </div>
+
+                <!-- PAYMENT & VERIFICATION -->
+                <h4 class="section-title mt-4">Payment Section</h4>
+                <div class="qr-section mb-4">
+                    <h5 class="fw-bold text-dark mb-1">Scan to Pay Fee</h5>
+                    <p class="scan-text">₹ 625</p>
+                    <p class="text-secondary mb-0" style="font-size: 12px;">GPay / PhonePe / Paytm</p>
+                    
+                    <div class="qr-code-container" data-bs-toggle="modal" data-bs-target="#qrZoomModal">
+                        <img src="https://i.postimg.cc/wvy79Rjt/c241b925-cdf7-4181-87f1-93e7b462fd5d-image.png" alt="Payment QR Code" class="qr-code-img">
+                        <p class="mt-2 mb-0 fw-bold" style="color: #ffcc00; font-size: 13px;">🔍 Tap to Enlarge & Zoom</p>
+                    </div>
+                    
+                    <div class="instruction-box">
+                        <strong>নির্দেশিকা:</strong><br>
+                        ১. উপরের QR Code স্ক্যান করে <strong>৬২৫ টাকা</strong> পেমেন্ট করুন।<br>
+                        ২. পেমেন্ট সফল হলে Transaction ID নিচের বক্সে লিখুন।<br>
+                        ৩. পেমেন্টের স্ক্রিনশট নিচে আপলোড করুন।
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-bold text-dark">Enter Transaction ID / UTR *</label>
+                        <input type="text" class="form-control border-primary shadow-sm" placeholder="e.g. 123456789012" required>
+                    </div>
+                    
+                    <div class="mb-2 text-start">
+                        <label class="form-label fw-bold text-dark">Upload Payment Screenshot *</label>
+                        <input type="file" class="form-control border-primary shadow-sm" id="paymentScreenshot" accept="image/*" required>
+                    </div>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn submit-btn">SUBMIT FORM</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer text-center">
+        <p class="mb-1"><strong>Address:</strong> Near Bus Stand, Tikar Khanji, Katwa, WB, 713150</p>
+        <p class="mb-1"><strong>Contact:</strong> 9635419644 | 9382423965</p>
+        <p class="mb-0"><strong>Website:</strong> <a href="http://www.vidyasagarihm.in" style="color: #ffcc00; text-decoration: none;">www.vidyasagarihm.in</a></p>
+    </div>
+
+    <!-- QR Zoom Modal -->
+    <div class="modal fade" id="qrZoomModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content qr-modal-content p-3">
+                <div class="d-flex justify-content-end mb-2">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-0">
+                    <p class="text-white mb-3 fw-bold fs-5">Scan or Pinch to Zoom</p>
+                    <img src="https://i.postimg.cc/wvy79Rjt/c241b925-cdf7-4181-87f1-93e7b462fd5d-image.png" class="img-fluid rounded border border-3 border-white w-100" alt="Zoomed QR Code">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript for Dummy Submission -->
+    <script>
+        document.getElementById('examForm').addEventListener('submit', function(event) {
+            // ১. পেজ রিলোড হওয়া বন্ধ করে দিলাম (No Backend Required)
+            event.preventDefault(); 
+            
+            // ২. ফর্মের কন্টেইনার ধরে সেখানে Success Message বসিয়ে দেওয়া হলো
+            const container = document.getElementById('mainFormContainer');
+            container.innerHTML = `
+                <div class="success-message">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-circle-fill success-icon" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                    <h3 class="text-success fw-bold mb-3">Form Submitted Successfully!</h3>
+                    <p class="text-muted" style="font-size: 15px;">আপনার Examination Form এবং Payment Details সফলভাবে জমা হয়েছে।</p>
+                    <hr class="my-4">
+                    <p class="text-dark fw-bold mb-0">ধন্যবাদ!</p>
+                    <p class="text-secondary mt-1" style="font-size: 13px;">Katwa Vidyasagar IHM</p>
+                </div>
+            `;
+            
+            // ৩. সাবমিট হওয়ার পর স্ক্রিনটি অটোমেটিকভাবে উপরে উঠে যাবে
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-    }
-
-    function markDropout(id) { if(confirm("Confirm Drop-Out?")) db.ref(DB_STUDENTS + '/' + id).update({ status: 'dropout' }); }
-    function restoreStudent(id) { if(confirm("Restore to Active?")) db.ref(DB_STUDENTS + '/' + id).update({ status: 'active' }); }
-    function deleteStudent(id) { if(confirm("⚠️ DELETE PERMANENTLY?")) db.ref(DB_STUDENTS + '/' + id).remove(); }
-
-    function navigate(id) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        const map = {'dashboard':'btn-dash', 'monthTracker':'btn-track', 'admission':'btn-adm', 'students':'btn-std', 'expenses':'btn-exp'};
-        if(map[id]) document.getElementById(map[id]).classList.add('active');
-        document.querySelector('.main').scrollTop = 0;
-    }
-    
-    function switchStudentView(mode) {
-        studentViewMode = mode;
-        document.getElementById('btn-view-active').classList.toggle('active', mode === 'active');
-        document.getElementById('btn-view-drop').classList.toggle('active', mode === 'dropout');
-        renderTable();
-    }
-
-    function setDefaults() {
-        if(document.getElementById('joinDate')) document.getElementById('joinDate').valueAsDate = new Date();
-        if(document.getElementById('expDate')) document.getElementById('expDate').valueAsDate = new Date();
-        document.getElementById('admFee').value = 150;
-        document.getElementById('monthlyFee').value = 150;
-        document.getElementById('examFee').value = 50;
-    }
-    
-    window.onclick = function(event) {
-        const payModal = document.getElementById('modal');
-        const editModal = document.getElementById('editModal');
-        if (event.target == payModal) payModal.style.display = "none";
-        if (event.target == editModal) editModal.style.display = "none";
-    }
-
-    setDefaults();
     </script>
 </body>
 </html>
